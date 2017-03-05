@@ -1,0 +1,55 @@
+<div class="container" ng-if="isLoading">
+    <div class="spinner">
+        <div class="dot1"></div>
+        <div class="dot2"></div>
+    </div>
+</div>
+<div class="container" ng-if="!isLoading">
+    <div class="row">
+        <div class="col-lg-2 text-right text-uppercase">
+            Selected:
+        </div>
+        <div class="col-lg-2">
+            <input id="all" type="checkbox" ng-model="filterModel.all" ng-change="toggleAll()">
+            <label for="all">All</label>
+        </div>
+        <div class="col-lg-2" ng-repeat="day in days">
+            <input id="{{ 'day' + day.order }}" type="checkbox" ng-model="filterModel.days[day.order]"
+                   ng-change="toggleDay(day.order)">
+            <label for="{{ 'day' + day.order }}">{{ day.order }}. day</label>
+        </div>
+        <button class="btn btn-primary pull-right" ng-click="merge()">Compare</button>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 text-right text-uppercase">
+            Halls:
+        </div>
+        <div class="col-lg-2" ng-repeat="hall in halls">
+            <input id="{{ 'day' + hall.id }}" type="checkbox" ng-model="filterModel.halls[hall.id]"
+                   ng-change="toggleHall(hall.id)">
+            <label for="{{ 'day' + hall.id }}">{{ hall.name }}</label>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div ng-repeat="day in days" class="text-center col-lg-5">
+            {{ day.order }}. day
+        </div>
+    </div>
+    <div class="row" ng-repeat="hall in halls">
+        <div class="col-lg-2 text-right">
+            <p style="margin-top: 44px;">{{ hall.name }}</p>
+        </div>
+        <div class="col-lg-5" ng-repeat="day in days" ng-init="data = getHallInsightDate(day, hall)">
+            <hall-insight data="data.lectures" max-val="data.maxVal" start="data.start" end="data.end"
+                          ng-click="onLectureSelect" refresh="refresh"></hall-insight>
+            <slick settings="slicks[day.order][hall.id]" style="height: 75px;"
+                   ng-if="slicks[day.order][hall.id].lectures.length">
+                <div ng-repeat="lectureId in slicks[day.order][hall.id].lectures"
+                    ng-init="data = getLectureMultipleData(lectureId)">
+                    <lecture-multiple style="width: 200px;" data="data.data" name="data.name" start="data.start" end="data.end"></lecture-multiple>
+                </div>
+            </slick>
+        </div>
+    </div>
+</div>

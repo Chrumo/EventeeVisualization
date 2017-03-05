@@ -1,0 +1,71 @@
+.axis path,
+.axis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
+.x.axis line {
+    display: none;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+}
+
+.hall-insight-bars {
+    fill: #4a9e8d;
+    stroke: #3b7e70;
+    pointer-events: none;
+}
+
+.hall-insight-bars.active {
+    fill: #2f6459;
+    stroke: #2f6459;
+}
+
+.hall-insight-bars.chosen {
+    fill: #f1d600;
+    stroke: #d8c000;
+}
+
+.hall-insight-bars.active.chosen {
+    fill: #a89500;
+    stroke: #a89500;
+}
+
+.hall-insight-invisible-bars {
+    fill: rgba(0, 0, 0, 0);
+    stroke: #3b7e70;
+    stroke-dasharray: 3, 3
+}
+
+.hall-insight-invisible-bars:hover {
+    cursor: pointer;
+}
+
+.hall-insight-invisible-bars.chosen {
+    stroke: #a89500;
+}
+
+/************************************ LECTURE MULTIPLE ************************************/
+
+.lecture-multiple-line {
+    stroke: #c4d8d4;
+    stroke-dasharray: 3, 3
+}
+
+.lecture-multiple-path {
+    fill: none;
+    stroke: #3b7e70;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-width: 1.5;
+}
+
+.merged-result-path{
+    fill: none;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}

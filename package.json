@@ -1,0 +1,33 @@
+{
+  "name": "angular-seed",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A starter project for AngularJS",
+  "repository": "https://github.com/angular/angular-seed",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^0.9.0",
+    "laravel-elixir-html-minify": "^1.0.1"
+  },
+  "scripts": {
+    "update-deps": "npm update",
+    "prestart": "npm install",
+    "start": "http-server -a localhost -p 8000 -c-1 ./build"
+  },
+  "dependencies": {
+    "angular": "^1.6.2",
+    "angular-slick-carousel": "^3.1.7",
+    "angular-ui-bootstrap": "^2.5.0",
+    "angular-ui-router": "^0.4.2",
+    "bootstrap": "^3.3.7",
+    "d3": "^3.5.17",
+    "gulp": "^3.9.1",
+    "jquery": "^3.1.1",
+    "laravel-elixir": "^6.0.0-15",
+    "laravel-elixir-remove": "^0.2.1",
+    "moment": "^2.17.1",
+    "restangular": "^1.6.1",
+    "slick-carousel": "^1.6.0",
+    "underscore": "^1.8.3"
+  }
+}
