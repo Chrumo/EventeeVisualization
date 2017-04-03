@@ -5,10 +5,14 @@ angular.module('diploma').controller("MergedResultCtrl", [
     '$scope',
     '$uibModalInstance',
     '$log',
-    'lectures',
-    function ($scope, $uibModalInstance, $log, lectures) {
+    'eventService',
+    'converterFactory',
+    'lectureIds',
+    function ($scope, $uibModalInstance, $log, eventService, converterFactory, lectureIds) {
 
-        $scope.lectures = lectures;
+        $scope.lectures = converterFactory.idDictionaryToArray(eventService.getLectureData(lectureIds));
+
+        $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds);
 
         $scope.close = function () {
             $uibModalInstance.dismiss('cancel');

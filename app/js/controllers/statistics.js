@@ -110,8 +110,7 @@ angular.module('diploma').controller('StatisticsCtrl', [
         };
 
         $scope.merge = function() {
-            var lectures = eventService.getLectureData(filterService.getSelectedIds());
-            modalFactory.openMergedResult(lectures);
+            modalFactory.openMergedResult(filterService.getSelectedIds());
         };
     }
 ]);

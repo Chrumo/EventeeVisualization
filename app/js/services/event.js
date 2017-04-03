@@ -8,13 +8,23 @@ angular.module('diploma').service('eventService', [
     'filterService',
     'helperService',
     'converterFactory',
+    'mathFactory',
     'event',
-    function($log, $q, Restangular, filterService, helperService, converterFactory, event) {
+    'attributeType',
+    function($log, $q, Restangular, filterService, helperService, converterFactory, mathFactory, event, attributeType) {
         $log.debug("eventService initialized");
 
         const _getEventData = function(id, callback) {
             Restangular.one('event', id).get().then(function(eventFS) {
                 callback(eventFS);
+            });
+        };
+
+        const _getFavorites = function(eventId, callback) {
+            return Restangular.all('event').get('lecturesanalytics', {}, {
+                confId: eventId
+            }).then(function(data) {
+                callback(data);
             });
         };
 
@@ -50,6 +60,7 @@ angular.module('diploma').service('eventService', [
                                     'name': lecture.name,
                                     'start': converterFactory.dateTimeFromServer(lecture.start),
                                     'end': converterFactory.dateTimeFromServer(lecture.end),
+                                    'favorites': 0,
                                     'ratings': []
                                 };
                             });
@@ -58,6 +69,17 @@ angular.module('diploma').service('eventService', [
                     date.add(1, 'd');
                 }
                 $q.all(promises).then(function() {
+                    _getFavorites(id, function(lectures) {
+                        angular.forEach(lectures, function(lecture) {
+                            angular.forEach(event, function(day) {
+                                angular.forEach(day.halls[lecture.hallId].lectures, function(lec, lecId) {
+                                    if(+lecture.id === +lecId) {
+                                        lec.favorites = lecture.favorites;
+                                    }
+                                });
+                            });
+                        });
+                    });
                     callback(data);
                 });
             });
@@ -77,7 +99,9 @@ angular.module('diploma').service('eventService', [
                 angular.forEach(day.halls, function(hall) {
                     angular.forEach(hall.lectures, function(lecture, lecId) {
                         if(parseInt(lectureId) === parseInt(lecId)) {
-                            retLecture = lecture;
+                            var lec = angular.copy(lecture);
+                            lec.id = +lecId;
+                            retLecture = lec;
                         }
                     });
                 });
@@ -103,7 +127,7 @@ angular.module('diploma').service('eventService', [
                                         lecture.ratings.push({
                                             'id': +rating.id,
                                             'time': datetime,
-                                            // 'rating': +rating.stars,
+                                            'rating': +rating.stars,
                                             'comment': rating.comment
                                         });
                                     }
@@ -230,6 +254,98 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        const _maxAttributesValue = {};
+        _maxAttributesValue[attributeType.RATINGS] = 0;
+        _maxAttributesValue[attributeType.COMMENTS] = 0;
+        _maxAttributesValue[attributeType.LENGTH] = 0;
+        _maxAttributesValue[attributeType.FAVORITES] = 0;
+        _maxAttributesValue[attributeType.AVG_RATING] = 0;
+
+        const _normalizeValue = function(value, attr) {
+            if(_maxAttributesValue[attr] === 0) {
+                return 0;
+            } else {
+                return (value * 100.0) / _maxAttributesValue[attr];
+            }
+        };
+
+        const _getLectureAttribute = function(lecture, attr, normalize) {
+            if(angular.isUndefined(normalize)) {
+                normalize = true;
+            }
+            var retVar;
+            switch (attr) {
+                case attributeType.RATINGS:
+                    retVar = lecture.ratings.length;
+                    break;
+                case attributeType.COMMENTS:
+                    var count = 0;
+                    angular.forEach(lecture.ratings, function(rating) {
+                        if(angular.isDefined(rating.comment) && rating.comment.length > 0) {
+                            count++;
+                        }
+                    });
+                    retVar =  count;
+                    break;
+                case attributeType.LENGTH:
+                    retVar = lecture.end.diff(lecture.start, 'minutes');
+                    break;
+                case attributeType.FAVORITES:
+                    retVar = lecture.favorites;
+                    break;
+                case attributeType.AVG_RATING:
+                    retVar = mathFactory.average(lecture.ratings, 'rating');
+                    break;
+            }
+            if(normalize) {
+                return _normalizeValue(retVar, attr);
+            } else {
+                return retVar;
+            }
+        };
+
+        const _setMaxValues = function(lectures, attributes) {
+            angular.forEach(lectures, function(lecture) {
+                angular.forEach(attributes, function(attribute) {
+                    _maxAttributesValue[attribute] =
+                        mathFactory.max(_maxAttributesValue[attribute], _getLectureAttribute(lecture, attribute, false));
+                });
+            });
+        };
+
+        const getLectureComparisonData = function(lectureIds, attributes) {
+            if(!angular.isArray(lectureIds)) {
+                return [];
+            }
+            if(!angular.isArray(attributes)) {
+                attributes = attributeType.ALL;
+            }
+            var lectures = [];
+            angular.forEach(lectureIds, function(lectureId) {
+                lectures.push(_getLecture(lectureId));
+            });
+            _setMaxValues(lectures, attributes);
+            var retArr = [];
+            angular.forEach(lectures, function(lecture) {
+                var retLecture = {
+                    "id": lecture.id,
+                    "name": lecture.name,
+                    "values": []
+                };
+                angular.forEach(attributes, function(attribute) {
+                    retLecture.values.push(_getLectureAttribute(lecture, attribute));
+                });
+
+                retArr.push(retLecture);
+            });
+
+            retArr.sort(function(a, b) {
+                return mathFactory.sum(a.values) - mathFactory.sum(b.values);
+            });
+
+            return retArr;
+        };
+
         const getHallAndDay = function(lectureId) {
             var retVal = {};
             angular.forEach(event, function (day, order) {
@@ -253,6 +369,7 @@ angular.module('diploma').service('eventService', [
             'getHallsAsArray': getHallsAsArray,
             'getHallInsightData': getHallInsightData,
             'getLectureData': getLectureData,
+            'getLectureComparisonData': getLectureComparisonData,
             'getHallAndDay': getHallAndDay
         }
     }

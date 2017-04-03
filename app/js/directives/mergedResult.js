@@ -128,7 +128,7 @@ angular.module('diploma')
 
                     /****************************************************** RENDER ******************************************************/
                     scope.render = function (dataset) {
-                        if (dataset === undefined) {
+                        if (angular.isUndefined(dataset)) {
                             return;
                         }
 
@@ -242,7 +242,7 @@ angular.module('diploma')
                             .call(yAxis);
                     };
 
-                    scope.$watchGroup('data', function () {
+                    scope.$watch('data', function () {
                         scope.render(angular.copy(scope.data));
                     });
                 }
