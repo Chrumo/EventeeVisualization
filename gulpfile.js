@@ -45,7 +45,8 @@ elixir(function (mix) {
         'underscore/underscore.js',
         'moment/moment.js',
         'slick-carousel/slick/slick.js',
-        'd3/d3.js'
+        'd3/d3.js',
+        'd3-svg-legend/d3-legend.js'
     ], JS_DESTINATION + 'scripts.js', NODE);
 
     mix.scripts([

@@ -69,3 +69,11 @@
     stroke-linejoin: round;
     stroke-linecap: round;
 }
+
+/************************************ LEGEND *********************************************/
+
+.data-legend {
+    fill:white;
+    stroke:black;
+    opacity:0.8;
+}

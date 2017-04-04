@@ -59,9 +59,21 @@ angular.module('diploma')
                         .attr("transform", "translate(" + padding + ",0)")
                         .call(yAxis);
 
+                    const getRectHeight = function(value) {
+                        return h - padding - yScale(value);
+                    };
+
+                    const getRectY = function(values, i) {
+                        var tmpHeight = 0;
+                        for(var index = 0; index <= i; index++) {
+                            tmpHeight += getRectHeight(values[index]);
+                        }
+                        return h - padding - tmpHeight;
+                    };
+
                     /****************************************************** RENDER ******************************************************/
                     scope.render = function(dataset) {
-                        if (angular.isUndefined(dataset)) {
+                        if (angular.isUndefined(dataset) || dataset.length === 0) {
                             return;
                         }
 
@@ -74,6 +86,8 @@ angular.module('diploma')
                             d.values = intValues;
                         });
 
+                        dataset.reverse();
+
                         //Update scale domains
                         xScale.domain(d3.range(dataset.length));
                         yScale.domain([0, d3.max(dataset, function(d) {
@@ -84,6 +98,11 @@ angular.module('diploma')
                                 return '';
                             }
                             return dataset[i].name;
+                            // var retVal = "";
+                            // angular.forEach(dataset[i].values, function (v, o) {
+                            //     retVal += "(" + Math.ceil(v) + ", " + o + ") ";
+                            // });
+                            // return retVal;
                         });
 
                         angular.forEach(dataset, function (lecture, i) {
@@ -99,20 +118,63 @@ angular.module('diploma')
                                 .append("rect")
                                 .attr("x", 0)
                                 .attr("y", function(d, i) {
-                                    var tmpHeight = 0;
-                                    for(var index = 0; index < i; index++) {
-                                        tmpHeight += h - yScale(lecture.values[index]);
-                                    }
-                                    return yScale(d) - padding - tmpHeight;
+                                    return getRectY(lecture.values, i);
                                 })
                                 .attr("width", xScale.rangeBand())
                                 .attr("height", function(d) {
-                                    return h - yScale(d);
+                                    return getRectHeight(d);
                                 })
                                 .attr("fill", function(d, i) {
                                     return colorScale(i);
                                 });
+
+                            //Select…
+                            var texts = group.selectAll("text")
+                                .data(lecture.values);
+
+                            //Enter…
+                            texts.enter()
+                                .append("text")
+                                .text(function(d) {
+                                    if(d === 0) {
+                                        return "";
+                                    } else {
+                                        return Math.round(d);
+                                    }
+                                })
+                                .attr("text-anchor", "middle")
+                                .attr("x", xScale.rangeBand() / 2)
+                                .attr("y", function(d, i) {
+                                    return getRectY(lecture.values, i) + getRectHeight(d) / 2;
+                                })
+                                .attr("font-family", "sans-serif")
+                                .attr("font-size", "11px")
+                                .attr("fill", "white")
+                                .style("pointer-events", "none");
                         });
+
+                        //Legend...
+                        var legend = svg.append("g")
+                            .attr("class", "legendOrdinal")
+                            .attr("transform", "translate(20,20)");
+
+                        legend.append("rect")
+                            .attr("class", "data-legend")
+                            .attr("width", 100)
+                            .attr("height", 150);
+
+                        legend.selectAll("circle")
+                            .data(dataset[0].values)
+                            .enter()
+                            .append("circle")
+                            .attr("cx", 18)
+                            .attr("cy", function(d, i) {
+                                return i * 28 + 18;
+                            })
+                            .attr("r", 10)
+                            .attr("fill", function(d, i) {
+                                return colorScale(i);
+                            });
 
                         //Update X axis
                         svg.select(".x.axis")
