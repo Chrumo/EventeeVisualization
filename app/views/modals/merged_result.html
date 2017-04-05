@@ -6,8 +6,17 @@
 </div>
 <div class="modal-body">
     <merged-result data="lectures"></merged-result>
-    <div style="padding: 20px;"></div>
-    <lecture-comparison data="lectureComparison"></lecture-comparison>
+    <div style="padding-top: 40px;display: flex;align-items: center;">
+        <div style="display: inline-block;overflow: auto;">
+            <lecture-comparison data="lectureComparison" attr="attributesArr"></lecture-comparison>
+        </div>
+        <div style="padding-left: 15px;">
+            <div class="form-group" ng-repeat="(attribute, attr) in attributes">
+                <input type="checkbox" id="{{ attribute }}" ng-model="attr.value" ng-change="attributeChanged()">
+                <label for="{{ attribute }}">{{ getAttributeName(attribute) }}</label>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-primary pull-right" ng-click="close()">

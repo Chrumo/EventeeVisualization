@@ -5,15 +5,22 @@ angular.module('diploma')
     .directive('lectureComparison', [
         '$log',
         '$window',
+        'attributeTypeService',
         'mathFactory',
-        function ($log, $window, mathFactory) {
+        'attributeType',
+        function ($log, $window, attributeTypeService, mathFactory, attributeType) {
             return {
                 restrict: 'E',
                 scope: {
-                    data: '='
+                    data: '=',
+                    attr: '=?'
                 },
                 link: function (scope, element) {
-                    var w = 850;
+                    if(angular.isUndefined(scope.attr)) {
+                        scope.attr = attributeType.ALL;
+                    }
+
+                    var w = 700;
                     var h = 300;
                     var padding = 30;
 
@@ -24,8 +31,6 @@ angular.module('diploma')
                     var yScale = d3.scale.linear()
                         .domain([0, 30])
                         .range([h - padding, padding]);
-
-                    var colorScale = d3.scale.category10();
 
                     //Define X axis
                     var xAxis = d3.svg.axis()
@@ -73,7 +78,8 @@ angular.module('diploma')
 
                     /****************************************************** RENDER ******************************************************/
                     scope.render = function(dataset) {
-                        if (angular.isUndefined(dataset) || dataset.length === 0) {
+                        if (angular.isUndefined(dataset) || dataset.length === 0
+                            || dataset[0].values.length !== scope.attr.length) {
                             return;
                         }
 
@@ -98,15 +104,14 @@ angular.module('diploma')
                                 return '';
                             }
                             return dataset[i].name;
-                            // var retVal = "";
-                            // angular.forEach(dataset[i].values, function (v, o) {
-                            //     retVal += "(" + Math.ceil(v) + ", " + o + ") ";
-                            // });
-                            // return retVal;
                         });
+
+                        svg.selectAll(".lecture-bar").remove();
+                        svg.selectAll(".group-legend").remove();
 
                         angular.forEach(dataset, function (lecture, i) {
                             var group = svg.append("g")
+                                .attr('class', 'lecture-bar')
                                 .attr("transform", "translate(" + xScale(i) + ",0)");
 
                             //Select…
@@ -125,56 +130,69 @@ angular.module('diploma')
                                     return getRectHeight(d);
                                 })
                                 .attr("fill", function(d, i) {
-                                    return colorScale(i);
+                                    return attributeTypeService.getColor(scope.attr[i]);
                                 });
 
                             //Select…
-                            var texts = group.selectAll("text")
-                                .data(lecture.values);
-
-                            //Enter…
-                            texts.enter()
-                                .append("text")
-                                .text(function(d) {
-                                    if(d === 0) {
-                                        return "";
-                                    } else {
-                                        return Math.round(d);
-                                    }
-                                })
-                                .attr("text-anchor", "middle")
-                                .attr("x", xScale.rangeBand() / 2)
-                                .attr("y", function(d, i) {
-                                    return getRectY(lecture.values, i) + getRectHeight(d) / 2;
-                                })
-                                .attr("font-family", "sans-serif")
-                                .attr("font-size", "11px")
-                                .attr("fill", "white")
-                                .style("pointer-events", "none");
+                            // var texts = group.selectAll("text")
+                            //     .data(lecture.values);
+                            //
+                            // //Enter…
+                            // texts.enter()
+                            //     .append("text")
+                            //     .text(function(d) {
+                            //         if(d === 0) {
+                            //             return "";
+                            //         } else {
+                            //             return Math.round(d);
+                            //         }
+                            //     })
+                            //     .attr("text-anchor", "middle")
+                            //     .attr("x", xScale.rangeBand() / 2)
+                            //     .attr("y", function(d, i) {
+                            //         return getRectY(lecture.values, i) + getRectHeight(d) / 2;
+                            //     })
+                            //     .attr("font-family", "sans-serif")
+                            //     .attr("font-size", "11px")
+                            //     .attr("fill", "white")
+                            //     .style("pointer-events", "none");
                         });
 
                         //Legend...
                         var legend = svg.append("g")
-                            .attr("class", "legendOrdinal")
-                            .attr("transform", "translate(20,20)");
+                            .attr("class", "group-legend")
+                            .attr("transform", "translate(" + (w - 114) + ",0)");
 
                         legend.append("rect")
                             .attr("class", "data-legend")
-                            .attr("width", 100)
-                            .attr("height", 150);
+                            .attr("width", 114)
+                            .attr("height", 3 + scope.attr.length * 13);
 
                         legend.selectAll("circle")
-                            .data(dataset[0].values)
+                            .data(scope.attr)
                             .enter()
                             .append("circle")
-                            .attr("cx", 18)
+                            .attr("cx", 10)
                             .attr("cy", function(d, i) {
-                                return i * 28 + 18;
+                                return i * 13 + 8;
                             })
-                            .attr("r", 10)
+                            .attr("r", 5)
                             .attr("fill", function(d, i) {
-                                return colorScale(i);
+                                return attributeTypeService.getColor(scope.attr[i]);
                             });
+
+                        legend.selectAll("text")
+                            .data(scope.attr)
+                            .enter()
+                            .append("text")
+                            .text(function(d, i) {
+                                return attributeTypeService.getName(scope.attr[i]);
+                            })
+                            .attr('x', 20)
+                            .attr('y', function(d, i) {
+                                return i * 13 + 13;
+                            })
+                            .attr('fill', 'black');
 
                         //Update X axis
                         svg.select(".x.axis")
@@ -190,9 +208,9 @@ angular.module('diploma')
 
                     };
 
-                    scope.$watch('data', function(){
+                    scope.$watchGroup(['data', 'attr'], function(){
                         scope.render(angular.copy(scope.data));
-                    });
+                    }, true);
                 }
             };
         }]);
