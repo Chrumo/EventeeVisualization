@@ -30,11 +30,25 @@ angular.module('diploma').factory('mathFactory',
                 return 1.0 * sum(arr, key) / arr.length;
             };
 
+            const timeMedian = function (array) {
+                array.sort(function(a, b) {
+                    return a.diff(b);
+                });
+
+                var half = Math.floor(array.length / 2);
+
+                if(array.length % 2)
+                    return array[half];
+                else
+                    return moment((array[half-1].valueOf() + array[half].valueOf()) / 2.0, 'x');
+            };
+
             const max = Math.max;
 
             return {
                 'sum': sum,
                 'average': average,
+                'timeMedian': timeMedian,
                 'max': max
             };
         }]);

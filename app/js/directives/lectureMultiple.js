@@ -35,24 +35,24 @@ angular.module('diploma')
                         var tick = {
                             'unit': d3.time.minute,
                             'count': 0,
-                            'format': d3.time.format("%H")
+                            'format': d3.time.format("%H:%M")
                         };
                         if(e.diff(s, 'days') > 4) {
                             tick.unit = d3.time.day;
-                            tick.count = Math.ceil(e.diff(s, 'days') / 3);
+                            tick.count = Math.ceil(Math.pow(e.diff(s, 'days'), 2));
                             tick.format = d3.time.format("%b %d")
-                        } else if(e.diff(s, 'days') > 2) {
+                        } else if(e.diff(s, 'days') >= 2) {
                             tick.unit = d3.time.day;
                             tick.count = 1;
                             tick.format = d3.time.format("%b %d")
                         } else if(e.diff(s, 'days') > 0) {
                             tick.unit = d3.time.hour;
                             tick.count = 12;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         } else if(e.diff(s, 'hours') > 12) {
                             tick.unit = d3.time.hour;
                             tick.count = 6;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         } else if(e.diff(s, 'minutes') < 30) {
                             tick.unit = d3.time.minute;
                             tick.count = 5;
@@ -60,7 +60,7 @@ angular.module('diploma')
                         } else {
                             tick.unit = d3.time.hour;
                             tick.count = 3;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         }
                         return tick;
                     };
@@ -92,18 +92,6 @@ angular.module('diploma')
                         .append("svg")
                         .attr("width", w)
                         .attr("height", h);
-
-                    //Create X axis
-                    svg.append("g")
-                        .attr("class", "x axis")
-                        .attr("transform", "translate(0," + (h - padding) + ")")
-                        .call(xAxis);
-
-                    //Create Y axis
-                    svg.append("g")
-                        .attr("class", "y axis")
-                        .attr("transform", "translate(" + padding + ",0)")
-                        .call(yAxis);
 
                     //Define key function, to be used when binding data
                     var key = function(d) {
@@ -173,20 +161,20 @@ angular.module('diploma')
                             .attr("r", 3)
                             .attr("fill", "rgba(0, 0, 0, 0)");
 
-                        //Update X axis
+                        //Create X axis
                         ticks = getTicks();
-                        svg.select(".x.axis")
-                            .transition('x-axis')
-                            .duration(1000)
+                        svg.append("g")
+                            .attr("class", "x axis")
+                            .attr("transform", "translate(0," + (h - padding) + ")")
                             .call(xAxis
-                                    .ticks(ticks.unit, ticks.count)
-                                    .tickFormat(ticks.format)
+                                .ticks(ticks.unit, ticks.count)
+                                .tickFormat(ticks.format)
                             );
 
-                        //Update Y axis
-                        svg.select(".y.axis")
-                            .transition('y-axis')
-                            .duration(1000)
+                        //Create Y axis
+                        svg.append("g")
+                            .attr("class", "y axis")
+                            .attr("transform", "translate(" + padding + ",0)")
                             .call(yAxis);
                     };
 

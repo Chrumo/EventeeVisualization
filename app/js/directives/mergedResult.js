@@ -5,7 +5,8 @@ angular.module('diploma')
     .directive('mergedResult', [
         '$log',
         '$window',
-        function ($log, $window) {
+        'mathFactory',
+        function ($log, $window, mathFactory) {
             return {
                 restrict: 'E',
                 scope: {
@@ -26,19 +27,37 @@ angular.module('diploma')
                         return minTime;
                     };
 
-                    const getMaxTime = function() {
+                    const getLastLectureEndTime = function () {
                         var maxTime = moment().subtract(100, 'y');
                         angular.forEach(scope.data, function (lecture) {
                             if(lecture.end.isAfter(maxTime)) {
                                 maxTime = lecture.end.clone();
                             }
-                            angular.forEach(lecture.data, function(rating) {
-                                if(rating.datetime.isAfter(maxTime)) {
-                                    maxTime = rating.datetime.clone();
-                                }
-                            });
                         });
                         return maxTime;
+                    };
+
+                    const getMaxTime = function() {
+                        var endArr = [];
+                        var maxTime = getLastLectureEndTime();
+                        angular.forEach(scope.data, function (lecture) {
+                            var endTime = maxTime.clone();
+                            var push = false;
+                            angular.forEach(lecture.data, function(rating) {
+                                if(rating.datetime.isAfter(endTime)) {
+                                    endTime = rating.datetime.clone();
+                                    push = true;
+                                }
+                            });
+                            if(push) {
+                                endArr.push(endTime);
+                            }
+                        });
+                        if(endArr.length) {
+                            return mathFactory.timeMedian(endArr);
+                        } else {
+                            return maxTime;
+                        }
                     };
 
                     const getTicks = function() {
@@ -47,24 +66,24 @@ angular.module('diploma')
                         var tick = {
                             'unit': d3.time.minute,
                             'count': 0,
-                            'format': d3.time.format("%H")
+                            'format': d3.time.format("%H:%M")
                         };
                         if(e.diff(s, 'days') > 4) {
                             tick.unit = d3.time.day;
-                            tick.count = Math.ceil(e.diff(s, 'days') / 3);
+                            tick.count = Math.ceil(Math.pow(e.diff(s, 'days'), 2) / 3.0);
                             tick.format = d3.time.format("%b %d")
-                        } else if(e.diff(s, 'days') > 2) {
+                        } else if(e.diff(s, 'days') >= 2) {
                             tick.unit = d3.time.day;
                             tick.count = 1;
                             tick.format = d3.time.format("%b %d")
                         } else if(e.diff(s, 'days') > 0) {
                             tick.unit = d3.time.hour;
                             tick.count = 12;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         } else if(e.diff(s, 'hours') > 12) {
                             tick.unit = d3.time.hour;
                             tick.count = 6;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         } else if(e.diff(s, 'minutes') < 30) {
                             tick.unit = d3.time.minute;
                             tick.count = 5;
@@ -72,7 +91,7 @@ angular.module('diploma')
                         } else {
                             tick.unit = d3.time.hour;
                             tick.count = 3;
-                            tick.format = d3.time.format("%H")
+                            tick.format = d3.time.format("%H:%M")
                         }
                         return tick;
                     };
@@ -84,10 +103,6 @@ angular.module('diploma')
                     var yScale = d3.scale.linear()
                         .domain([0, 1])
                         .range([h - padding, padding]);
-
-                    var colorScaleA = d3.scale.category20();
-                    var colorScaleB = d3.scale.category20b();
-                    var colorScaleC = d3.scale.category20c();
 
                     //Define X axis
                     var xAxis = d3.svg.axis()
@@ -121,6 +136,27 @@ angular.module('diploma')
                         .attr("transform", "translate(" + padding + ",0)")
                         .call(yAxis);
 
+                    const draw = function () {
+                        svg.select('g.x.axis').call(xAxis);
+                        zoom = d3.behavior.zoom()
+                            .x(xScale)
+                            .on("zoom", draw);
+                        zoomRect.call(zoom);
+                    };
+
+                    var zoom = d3.behavior.zoom()
+                        .x(xScale)
+                        .on("zoom", draw);
+
+                    var zoomRect = svg.append("rect")
+                        .attr("class", "zoom x box")
+                        .attr("width", w - 2 * padding)
+                        .attr("height", h - 2 * padding)
+                        .attr("transform", "translate(" + 0 + "," + (h - 2 * padding) + ")")
+                        .style("visibility", "hidden")
+                        .attr("pointer-events", "all")
+                        .call(zoom);
+
                     //Define key function, to be used when binding data
                     var key = function(d) {
                         return d.id;
@@ -132,6 +168,9 @@ angular.module('diploma')
                             return;
                         }
 
+                        const minDate = getMinTime();
+                        const maxDate = getMaxTime();
+
                         dataset.forEach(function (d) {
                             if (moment.isMoment(d.start)) {
                                 d.start = d.start.toDate();
@@ -139,74 +178,53 @@ angular.module('diploma')
                             if (moment.isMoment(d.end)) {
                                 d.end = d.end.toDate();
                             }
+                            var ratings = [];
                             angular.forEach(d.data, function(rating) {
+                                var beforeEnd = false;
                                 if (moment.isMoment(rating.datetime)) {
+                                    if(rating.datetime.isSameOrBefore(maxDate)) {
+                                        beforeEnd = true;
+                                    }
                                     rating.datetime = rating.datetime.toDate();
                                 }
                                 rating.value = +rating.value;
+                                if(beforeEnd) {
+                                    ratings.push(rating);
+                                }
                             });
+
+                            const last = angular.copy(ratings[ratings.length - 1]);
+                            ratings.push({
+                                'datetime': maxDate.toDate(),
+                                'value': last.value
+                            });
+
+                            d.data = ratings;
                         });
 
                         //Update scale domains
-                        xScale.domain([getMinTime(), getMaxTime().toDate()]);
+                        xScale.domain([minDate.toDate(), maxDate.toDate()]);
                         yScale.domain([0, d3.max(dataset, function(d) {
                             return d3.max(d.data, function(rating) {
                                 return rating.value;
                             });
                         })]);
 
-                        //Select…
-                        // var lines = svg.selectAll(".lecture-multiple-line")
-                        //     .data(dataset, key);
-                        //
-                        // //Enter…
-                        // lines.enter()
-                        //     .append("line")
-                        //     .attr("x1", function (d) {
-                        //         return xScale(d.datetime);
-                        //     })
-                        //     .attr("y1", h - padding)
-                        //     .attr("x2", function (d) {
-                        //         return xScale(d.datetime);
-                        //     })
-                        //     .attr("y2", padding)
-                        //     .attr("class", "lecture-multiple-line")
-                        //     .attr("stroke-width", 2)
-                        //     .on('mouseover', function (d) {
-                        //         d3.select("circle")
-                        //             .attr("cx", xScale(d.datetime))
-                        //             .attr("cy", yScale(d.value))
-                        //             .attr("fill", "rgba(47, 100, 89, 1)"); // #2f6459
-                        //     })
-                        //     .on('mouseout', function (d) {
-                        //         d3.select("circle")
-                        //             .transition('circle-' + key(d) + '-mouseout')
-                        //             .duration(10)
-                        //             .attr("fill", "rgba(0, 0, 0, 0)");
-                        //     });
-
                         var line = d3.svg.line()
                             .x(function(d) { return xScale(d.datetime); })
                             .y(function(d) { return yScale(d.value); });
 
-                        svg.selectAll('.merged-result-path')
-                            .data(dataset, key)
-                            .enter().append("path")
+                        var paths = svg.selectAll('.merged-result-path')
+                            .data(dataset, key);
+
+                        paths.enter().append("path")
                             .attr("class", "merged-result-path")
                             .attr("stroke-width", 1.5)
                             .style("opacity", "0.5")
                             .attr("d", function(d) {
                                 return line(d.data);
                             })
-                            .attr("stroke", function (d, i) {
-                                if(i < 20) {
-                                    return colorScaleA(i);
-                                } else if(i < 40) {
-                                    return colorScaleB(i);
-                                } else {
-                                    return colorScaleC(i);
-                                }
-                            })
+                            .attr("stroke", "#2f6459")
                             .on("mouseover", function() {
                                 d3.select(this)
                                     .style("opacity", "1")
@@ -218,12 +236,7 @@ angular.module('diploma')
                                     .attr("stroke-width", 1.5);
                             });
 
-                        // on hover tip
-                        // svg.append("circle")
-                        //     .attr("cx", 0)
-                        //     .attr("cy", 0)
-                        //     .attr("r", 3)
-                        //     .attr("fill", "rgba(0, 0, 0, 0)");
+                        paths.exit().remove();
 
                         //Update X axis
                         ticks = getTicks();
@@ -231,8 +244,8 @@ angular.module('diploma')
                             .transition('x-axis')
                             .duration(1000)
                             .call(xAxis
-                                    .ticks(ticks.unit, ticks.count)
-                                    .tickFormat(ticks.format)
+                                    // .ticks(ticks.unit, ticks.count)
+                                    // .tickFormat(ticks.format)
                             );
 
                         //Update Y axis

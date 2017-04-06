@@ -10,9 +10,40 @@ angular.module('diploma').service('eventService', [
     'converterFactory',
     'mathFactory',
     'event',
+    'statisticsType',
     'attributeType',
-    function($log, $q, Restangular, filterService, helperService, converterFactory, mathFactory, event, attributeType) {
+    function($log, $q, Restangular, filterService, helperService, converterFactory, mathFactory, event, statisticsType,
+             attributeType) {
         $log.debug("eventService initialized");
+
+        var getAllWithStatisticsAsync = function(callback) {
+            Restangular.all('user/events').getList().then(function(events) {
+                var promises = [];
+                var retArr = [];
+                angular.forEach(events, function(event) {
+                    promises.push(Restangular.one('event', event.id).customGET('analytics/basic', {}, {
+                        'confId': event.id
+                    }).then(function(analytics) {
+                        retEvent = {
+                            'id': event.id,
+                            'name': event.name,
+                            'status': event.status
+                        };
+                        retEvent[statisticsType.IOS] = analytics.iOS;
+                        retEvent[statisticsType.ANDROID] = analytics.android;
+                        retEvent[statisticsType.REVIEWS] = analytics.reviews;
+                        retEvent[statisticsType.RATING] = analytics.rating;
+                        retEvent[statisticsType.HALLS] = analytics.halls;
+                        retEvent[statisticsType.SESSIONS] = analytics.sessions;
+                        retEvent[statisticsType.NEWS_FEEDS] = analytics.newsFeed;
+                        retArr.push(retEvent);
+                    }));
+                });
+                $q.all(promises).then(function() {
+                    callback(retArr);
+                });
+            });
+        };
 
         const _getEventData = function(id, callback) {
             Restangular.one('event', id).get().then(function(eventFS) {
@@ -71,7 +102,7 @@ angular.module('diploma').service('eventService', [
                 $q.all(promises).then(function() {
                     _getFavorites(id, function(lectures) {
                         angular.forEach(lectures, function(lecture) {
-                            angular.forEach(event, function(day) {
+                            angular.forEach(data, function(day) {
                                 angular.forEach(day.halls[lecture.hallId].lectures, function(lec, lecId) {
                                     if(+lecture.id === +lecId) {
                                         lec.favorites = lecture.favorites;
@@ -111,6 +142,11 @@ angular.module('diploma').service('eventService', [
 
         const getDataAsync = function(id, callback) {
             $log.debug('eventService.getDataAsync(' + typeof id + ' ' + id + ', ' + typeof callback + ')');
+            angular.forEach(event, function (e, id) {
+                delete event[id];
+            });
+            filterService.clear();
+            helperService.clear();
             _getContent(id, function(data) {
                 var promises = [];
                 angular.forEach(data, function(day, order) {
@@ -364,6 +400,7 @@ angular.module('diploma').service('eventService', [
         };
 
         return {
+            'getAllWithStatisticsAsync': getAllWithStatisticsAsync,
             'getDataAsync': getDataAsync,
             'getDaysAsArray': getDaysAsArray,
             'getHallsAsArray': getHallsAsArray,

@@ -38,12 +38,6 @@ angular.module('diploma')
                         .orient("bottom")
                         .ticks(5);
 
-                    //Define Y axis
-                    var yAxis = d3.svg.axis()
-                        .scale(yScale)
-                        .orient("left")
-                        .ticks(5);
-
                     var elem = $window.d3.select(element[0]);
 
                     //Create SVG element
@@ -57,12 +51,6 @@ angular.module('diploma')
                         .attr("class", "x axis")
                         .attr("transform", "translate(0," + (h - padding) + ")")
                         .call(xAxis);
-
-                    //Create Y axis
-                    svg.append("g")
-                        .attr("class", "y axis")
-                        .attr("transform", "translate(" + padding + ",0)")
-                        .call(yAxis);
 
                     const getRectHeight = function(value) {
                         return h - padding - yScale(value);
@@ -99,12 +87,7 @@ angular.module('diploma')
                         yScale.domain([0, d3.max(dataset, function(d) {
                             return mathFactory.sum(d.values); })]);
 
-                        xAxis.tickFormat(function(i) {
-                            if(i > dataset.length) {
-                                return '';
-                            }
-                            return dataset[i].name;
-                        });
+                        xAxis.tickFormat('');
 
                         svg.selectAll(".lecture-bar").remove();
                         svg.selectAll(".group-legend").remove();
@@ -132,30 +115,6 @@ angular.module('diploma')
                                 .attr("fill", function(d, i) {
                                     return attributeTypeService.getColor(scope.attr[i]);
                                 });
-
-                            //Select…
-                            // var texts = group.selectAll("text")
-                            //     .data(lecture.values);
-                            //
-                            // //Enter…
-                            // texts.enter()
-                            //     .append("text")
-                            //     .text(function(d) {
-                            //         if(d === 0) {
-                            //             return "";
-                            //         } else {
-                            //             return Math.round(d);
-                            //         }
-                            //     })
-                            //     .attr("text-anchor", "middle")
-                            //     .attr("x", xScale.rangeBand() / 2)
-                            //     .attr("y", function(d, i) {
-                            //         return getRectY(lecture.values, i) + getRectHeight(d) / 2;
-                            //     })
-                            //     .attr("font-family", "sans-serif")
-                            //     .attr("font-size", "11px")
-                            //     .attr("fill", "white")
-                            //     .style("pointer-events", "none");
                         });
 
                         //Legend...
@@ -199,12 +158,6 @@ angular.module('diploma')
                             .transition()
                             .duration(1000)
                             .call(xAxis);
-
-                        //Update Y axis
-                        svg.select(".y.axis")
-                            .transition()
-                            .duration(1000)
-                            .call(yAxis);
 
                     };
 

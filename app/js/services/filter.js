@@ -185,6 +185,19 @@ angular.module('diploma').service('filterService',
                 return filter.lectures[lectureId];
             };
 
+            const clear = function () {
+                filter.all = false;
+                angular.forEach(filter.days, function (d, i) {
+                    delete filter.days[i];
+                });
+                angular.forEach(filter.halls, function (h, i) {
+                    delete filter.halls[i];
+                });
+                angular.forEach(filter.lectures, function (l, i) {
+                    delete filter.lectures[i];
+                });
+            };
+
             return {
                 'addNewLecture': addNewLecture,
                 'toggleAll': toggleAll,
@@ -194,6 +207,7 @@ angular.module('diploma').service('filterService',
                 'isSelected': isSelected,
                 'isSomeSelected': isSomeSelected,
                 'getSelectedIds': getSelectedIds,
-                'isLectureSelected': isLectureSelected
+                'isLectureSelected': isLectureSelected,
+                'clear': clear
             };
         }]);

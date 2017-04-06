@@ -81,6 +81,13 @@ angular.module('diploma').service('helperService',
                 });
             };
 
+            const clear = function () {
+                helpers.maxNumberOfRatings = 0;
+                angular.forEach(helpers.halls, function (h, i) {
+                    delete helpers.halls[i];
+                });
+            };
+
             return {
                 'getMinMaxDate': getMinMaxDate,
                 'setMaxNumberOfRatings': setMaxNumberOfRatings,
@@ -88,6 +95,7 @@ angular.module('diploma').service('helperService',
                 'setHallStart': setHallStart,
                 'getHallStart': getHallStart,
                 'setHallEnd': setHallEnd,
-                'getHallEnd': getHallEnd
+                'getHallEnd': getHallEnd,
+                'clear': clear
             };
         }]);

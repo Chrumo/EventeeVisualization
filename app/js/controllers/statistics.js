@@ -112,5 +112,9 @@ angular.module('diploma').controller('StatisticsCtrl', [
         $scope.merge = function() {
             modalFactory.openMergedResult(filterService.getSelectedIds());
         };
+
+        $scope.canCompare = function() {
+            return filterService.isSomeSelected();
+        };
     }
 ]);

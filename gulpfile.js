@@ -33,7 +33,8 @@ elixir(function (mix) {
         'bootstrap/dist/css/bootstrap.css',
         'slick-carousel/slick/slick.css',
         'slick-carousel/slick/slick-theme.css',
-        'angular-ui-bootstrap/dist/ui-bootstrap-csp.css'
+        'angular-ui-bootstrap/dist/ui-bootstrap-csp.css',
+        'font-awesome/css/font-awesome.css'
     ], CSS_DESTINATION + 'styles.css', NODE);
 
     mix.stylesIn(CSS_SOURCE, CSS_DESTINATION + 'app.css');
@@ -71,6 +72,7 @@ elixir(function (mix) {
 
     ///////////////////////////////////////////////////// FONTS //////////////////////////////////////////////////////
     mix.copy(NODE + 'bootstrap/dist/fonts', FONT_DESTINATION);
+    mix.copy(NODE + 'font-awesome/fonts', FONT_DESTINATION);
     mix.copy(NODE + 'slick-carousel/slick/fonts', CSS_DESTINATION + 'fonts/');
 
     ///////////////////////////////////////////////////// IMAGES /////////////////////////////////////////////////////

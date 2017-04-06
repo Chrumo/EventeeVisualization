@@ -6,12 +6,18 @@ angular.module('diploma')
         '$stateProvider',
         '$urlRouterProvider',
         function ($stateProvider, $urlRouterProvider) {
-            $urlRouterProvider.otherwise('/event/124/stats');
+            $urlRouterProvider.otherwise('/events');
+            // $urlRouterProvider.otherwise('/event/124/stats');
 
             $stateProvider
+                .state('events', {
+                    url: "/events",
+                    templateUrl: "views/events.html",
+                    controller: "eventsCtrl"
+                })
                 .state('event', {
                     abstract: true,
-                    url: '/event/{id}',
+                    url: '/event/{id:int}',
                     templateUrl: "views/layouts/event.html"
                 })
                 .state('event.stats', {

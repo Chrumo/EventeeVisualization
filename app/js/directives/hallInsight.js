@@ -35,7 +35,7 @@ angular.module('diploma')
                         .scale(xScale)
                         .orient("bottom")
                         .ticks(d3.time.hour, 2)
-                        .tickFormat(d3.time.format("%H"));
+                        .tickFormat(d3.time.format("%H:%M"));
 
                     //Define Y axis
                     var yAxis = d3.svg.axis()
