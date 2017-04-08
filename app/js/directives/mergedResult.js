@@ -60,42 +60,6 @@ angular.module('diploma')
                         }
                     };
 
-                    const getTicks = function() {
-                        const s = getMinTime().clone();
-                        const e = getMaxTime().clone();
-                        var tick = {
-                            'unit': d3.time.minute,
-                            'count': 0,
-                            'format': d3.time.format("%H:%M")
-                        };
-                        if(e.diff(s, 'days') > 4) {
-                            tick.unit = d3.time.day;
-                            tick.count = Math.ceil(Math.pow(e.diff(s, 'days'), 2) / 3.0);
-                            tick.format = d3.time.format("%b %d")
-                        } else if(e.diff(s, 'days') >= 2) {
-                            tick.unit = d3.time.day;
-                            tick.count = 1;
-                            tick.format = d3.time.format("%b %d")
-                        } else if(e.diff(s, 'days') > 0) {
-                            tick.unit = d3.time.hour;
-                            tick.count = 12;
-                            tick.format = d3.time.format("%H:%M")
-                        } else if(e.diff(s, 'hours') > 12) {
-                            tick.unit = d3.time.hour;
-                            tick.count = 6;
-                            tick.format = d3.time.format("%H:%M")
-                        } else if(e.diff(s, 'minutes') < 30) {
-                            tick.unit = d3.time.minute;
-                            tick.count = 5;
-                            tick.format = d3.time.format("%H:%M")
-                        } else {
-                            tick.unit = d3.time.hour;
-                            tick.count = 3;
-                            tick.format = d3.time.format("%H:%M")
-                        }
-                        return tick;
-                    };
-
                     var xScale = d3.time.scale()
                         .domain([getMinTime().toDate(), getMaxTime().toDate()])
                         .range([padding, w - padding]);
@@ -107,14 +71,12 @@ angular.module('diploma')
                     //Define X axis
                     var xAxis = d3.svg.axis()
                         .scale(xScale)
-                        .orient("bottom")
-                        .ticks(d3.time.months, 1);
+                        .orient("bottom");
 
                     //Define Y axis
                     var yAxis = d3.svg.axis()
                         .scale(yScale)
-                        .orient("left")
-                        .ticks(2);
+                        .orient("left");
 
                     var elem = $window.d3.select(element[0]);
 
@@ -123,6 +85,13 @@ angular.module('diploma')
                         .append("svg")
                         .attr("width", w)
                         .attr("height", h);
+
+                    svg.append("defs").append("clipPath")
+                        .attr("id", "clip")
+                        .append("rect")
+                        .attr("width", w - 2 * padding)
+                        .attr("height", h - 2 * padding)
+                        .attr("transform", "translate(" + padding + "," + padding+ ")");
 
                     //Create X axis
                     svg.append("g")
@@ -138,17 +107,16 @@ angular.module('diploma')
 
                     const draw = function () {
                         svg.select('g.x.axis').call(xAxis);
-                        zoom = d3.behavior.zoom()
-                            .x(xScale)
-                            .on("zoom", draw);
-                        zoomRect.call(zoom);
+                        update([]);
+                        update(angular.copy(scope.data));
                     };
 
                     var zoom = d3.behavior.zoom()
                         .x(xScale)
+                        .scaleExtent([1, 50])
                         .on("zoom", draw);
 
-                    var zoomRect = svg.append("rect")
+                    svg.append("rect")
                         .attr("class", "zoom x box")
                         .attr("width", w - 2 * padding)
                         .attr("height", h - 2 * padding)
@@ -157,18 +125,7 @@ angular.module('diploma')
                         .attr("pointer-events", "all")
                         .call(zoom);
 
-                    //Define key function, to be used when binding data
-                    var key = function(d) {
-                        return d.id;
-                    };
-
-                    /****************************************************** RENDER ******************************************************/
-                    scope.render = function (dataset) {
-                        if (angular.isUndefined(dataset)) {
-                            return;
-                        }
-
-                        const minDate = getMinTime();
+                    const convertData = function (dataset) {
                         const maxDate = getMaxTime();
 
                         dataset.forEach(function (d) {
@@ -202,20 +159,16 @@ angular.module('diploma')
                             d.data = ratings;
                         });
 
-                        //Update scale domains
-                        xScale.domain([minDate.toDate(), maxDate.toDate()]);
-                        yScale.domain([0, d3.max(dataset, function(d) {
-                            return d3.max(d.data, function(rating) {
-                                return rating.value;
-                            });
-                        })]);
+                        return dataset;
+                    };
 
+                    const drawPaths = function (dataset) {
                         var line = d3.svg.line()
                             .x(function(d) { return xScale(d.datetime); })
                             .y(function(d) { return yScale(d.value); });
 
                         var paths = svg.selectAll('.merged-result-path')
-                            .data(dataset, key);
+                            .data(dataset);
 
                         paths.enter().append("path")
                             .attr("class", "merged-result-path")
@@ -225,6 +178,7 @@ angular.module('diploma')
                                 return line(d.data);
                             })
                             .attr("stroke", "#2f6459")
+                            .attr("clip-path", "url(#clip)")
                             .on("mouseover", function() {
                                 d3.select(this)
                                     .style("opacity", "1")
@@ -237,21 +191,39 @@ angular.module('diploma')
                             });
 
                         paths.exit().remove();
+                    };
+
+                    const update = function(dataset) {
+                        drawPaths(convertData(dataset));
+                    };
+
+                    /****************************************************** RENDER ******************************************************/
+                    scope.render = function (dataset) {
+                        if (angular.isUndefined(dataset)) {
+                            return;
+                        }
+
+                        dataset = convertData(dataset);
+
+                        const minDate = getMinTime();
+                        const maxDate = getMaxTime();
+
+                        //Update scale domains
+                        xScale.domain([minDate.toDate(), maxDate.toDate()]);
+                        yScale.domain([0, d3.max(dataset, function(d) {
+                            return d3.max(d.data, function(rating) {
+                                return rating.value;
+                            });
+                        })]);
+
+                        drawPaths(dataset);
 
                         //Update X axis
-                        ticks = getTicks();
                         svg.select(".x.axis")
-                            .transition('x-axis')
-                            .duration(1000)
-                            .call(xAxis
-                                    // .ticks(ticks.unit, ticks.count)
-                                    // .tickFormat(ticks.format)
-                            );
+                            .call(xAxis);
 
                         //Update Y axis
                         svg.select(".y.axis")
-                            .transition('y-axis')
-                            .duration(1000)
                             .call(yAxis);
                     };
 
