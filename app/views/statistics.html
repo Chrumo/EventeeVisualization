@@ -19,7 +19,7 @@
             <label for="{{ 'day' + day.order }}">{{ day.order }}. day</label>
         </div>
         <button class="btn btn-primary pull-right" ng-disabled="!canCompare()" ng-click="merge()">Compare</button>
-        <a class="btn btn-default pull-right change-btn" ui-sref="events">Change event</a>
+        <a class="btn btn-default pull-right change-btn" ng-click="redirectToEvents()">Change event</a>
     </div>
     <div class="row">
         <div class="col-lg-2 text-right text-uppercase">

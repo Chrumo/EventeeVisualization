@@ -34,7 +34,8 @@ elixir(function (mix) {
         'slick-carousel/slick/slick.css',
         'slick-carousel/slick/slick-theme.css',
         'angular-ui-bootstrap/dist/ui-bootstrap-csp.css',
-        'font-awesome/css/font-awesome.css'
+        'font-awesome/css/font-awesome.css',
+        'sweetalert/dist/sweetalert.css'
     ], CSS_DESTINATION + 'styles.css', NODE);
 
     mix.stylesIn(CSS_SOURCE, CSS_DESTINATION + 'app.css');
@@ -47,7 +48,8 @@ elixir(function (mix) {
         'moment/moment.js',
         'slick-carousel/slick/slick.js',
         'd3/d3.js',
-        'd3-svg-legend/d3-legend.js'
+        'd3-svg-legend/d3-legend.js',
+        'sweetalert/dist/sweetalert-dev.js'
     ], JS_DESTINATION + 'scripts.js', NODE);
 
     mix.scripts([
@@ -56,7 +58,8 @@ elixir(function (mix) {
         'restangular/dist/restangular.js',
         'angular-slick-carousel/dist/angular-slick.js',
         'angular-ui-bootstrap/dist/ui-bootstrap.js',
-        'angular-ui-bootstrap/dist/ui-bootstrap-tpls.js'
+        'angular-ui-bootstrap/dist/ui-bootstrap-tpls.js',
+        'ng-sweet-alert/ng-sweet-alert.js'
     ], JS_DESTINATION + 'angular-scripts.js', NODE);
 
     mix.scripts([

@@ -366,17 +366,19 @@ angular.module('diploma').service('eventService', [
                 var retLecture = {
                     "id": lecture.id,
                     "name": lecture.name,
-                    "values": []
+                    "values": [],
+                    "normalized": []
                 };
                 angular.forEach(attributes, function(attribute) {
-                    retLecture.values.push(_getLectureAttribute(lecture, attribute));
+                    retLecture.normalized.push(_getLectureAttribute(lecture, attribute, true));
+                    retLecture.values.push(_getLectureAttribute(lecture, attribute, false));
                 });
 
                 retArr.push(retLecture);
             });
 
             retArr.sort(function(a, b) {
-                return mathFactory.sum(a.values) - mathFactory.sum(b.values);
+                return mathFactory.sum(a.normalized) - mathFactory.sum(b.normalized);
             });
 
             return retArr;

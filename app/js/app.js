@@ -4,5 +4,6 @@ angular.module('diploma', [
     'ui.router',
     'restangular',
     'slickCarousel',
-    'ui.bootstrap'
+    'ui.bootstrap',
+    'ng-sweet-alert'
 ]);

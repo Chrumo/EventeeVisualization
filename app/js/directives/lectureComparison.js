@@ -52,8 +52,39 @@ angular.module('diploma')
                         .attr("transform", "translate(0," + (h - padding) + ")")
                         .call(xAxis);
 
-                    const getRectHeight = function(value) {
-                        return h - padding - yScale(value);
+                    const createTooltip = function() {
+                        var tooltip = d3.select("#lecture_comparison_tooltip");
+
+                        if(!tooltip.empty()) {
+                            tooltip.remove();
+                        }
+
+                        tooltip = elem.append("div")
+                            .attr("id", "lecture_comparison_tooltip")
+                            .attr("class", "graph_tooltip hidden");
+
+                        var tooltipName = tooltip.append("p")
+                            .append("strong")
+                            .text("Name: ");
+                        tooltipName.append("span")
+                            .attr("id", 'lecture_comparison_name')
+                            .text("");
+
+                        angular.forEach(scope.attr, function(attrName) {
+                            var tooltipAttr = tooltip.append("p")
+                                .append("strong")
+                                .text(attributeTypeService.getName(attrName) + ": ");
+                            tooltipAttr.append("span")
+                                .attr("id", 'lecture_comparison_' + attrName)
+                                .text("");
+                        });
+                    };
+
+                    const getRectHeight = function(values) {
+                        if(angular.isDefined(values) && !angular.isArray(values)) {
+                            values = [values];
+                        }
+                        return h - padding - yScale(mathFactory.sum(values));
                     };
 
                     const getRectY = function(values, i) {
@@ -67,12 +98,19 @@ angular.module('diploma')
                     /****************************************************** RENDER ******************************************************/
                     scope.render = function(dataset) {
                         if (angular.isUndefined(dataset) || dataset.length === 0
-                            || dataset[0].values.length !== scope.attr.length) {
+                            || dataset[0].normalized.length !== scope.attr.length) {
                             return;
                         }
 
+                        createTooltip();
+
                         dataset.forEach(function(d) {
                             d.id = +d.id;
+                            var intNormalizedValues = [];
+                            angular.forEach(d.normalized, function(value) {
+                                intNormalizedValues.push(+value);
+                            });
+                            d.normalized = intNormalizedValues;
                             var intValues = [];
                             angular.forEach(d.values, function(value) {
                                 intValues.push(+value);
@@ -85,7 +123,7 @@ angular.module('diploma')
                         //Update scale domains
                         xScale.domain(d3.range(dataset.length));
                         yScale.domain([0, d3.max(dataset, function(d) {
-                            return mathFactory.sum(d.values); })]);
+                            return mathFactory.sum(d.normalized); })]);
 
                         xAxis.tickFormat('');
 
@@ -99,14 +137,14 @@ angular.module('diploma')
 
                             //Select…
                             var bars = group.selectAll("rect")
-                                .data(lecture.values);
+                                .data(lecture.normalized);
 
                             //Enter…
                             bars.enter()
                                 .append("rect")
                                 .attr("x", 0)
                                 .attr("y", function(d, i) {
-                                    return getRectY(lecture.values, i);
+                                    return getRectY(lecture.normalized, i);
                                 })
                                 .attr("width", xScale.rangeBand())
                                 .attr("height", function(d) {
@@ -114,6 +152,38 @@ angular.module('diploma')
                                 })
                                 .attr("fill", function(d, i) {
                                     return attributeTypeService.getColor(scope.attr[i]);
+                                })
+                                .on("mouseover", function(d, highlightIndex) {
+                                    // Get this bar's x/y values, then augment for the tooltip
+                                    var xPosition = xScale(i) + xScale.rangeBand() / 2;
+                                    var yPosition = getRectHeight(dataset[i].normalized) + 2 * padding;
+
+                                    //Update the tooltip position and value
+                                    var tooltip = d3.select("#lecture_comparison_tooltip")
+                                        .style("left", xPosition + "px")
+                                        .style("bottom", yPosition + "px");
+
+                                    tooltip.select("#lecture_comparison_name")
+                                        .text(dataset[i].name);
+                                    angular.forEach(scope.attr, function(attr, index) {
+                                        var tooltipAttr = tooltip.select("#lecture_comparison_" + attr)
+                                            .text(dataset[i].values[index]);
+                                        if(index === highlightIndex) {
+                                            d3.select(tooltipAttr.node().parentNode).style("color", "red");
+                                        }
+                                    });
+
+                                    //Show the tooltip
+                                    tooltip.classed("hidden", false);
+                                })
+                                .on("mouseout", function() {
+                                    //Hide the tooltip
+                                    var tooltip = d3.select("#lecture_comparison_tooltip");
+                                    tooltip.classed("hidden", true);
+                                    angular.forEach(scope.attr, function(attr) {
+                                        d3.select(tooltip.select("#lecture_comparison_" + attr).node().parentNode)
+                                            .style("color", "black");
+                                    });
                                 });
                         });
 

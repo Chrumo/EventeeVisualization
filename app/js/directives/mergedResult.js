@@ -105,6 +105,34 @@ angular.module('diploma')
                         .attr("transform", "translate(" + padding + ",0)")
                         .call(yAxis);
 
+                    var tooltip = elem.append("div")
+                        .attr("id", "merged_result_tooltip")
+                        .attr("class", "graph_tooltip hidden");
+                    var tooltipName = tooltip.append("p")
+                        .append("strong")
+                        .text("Name: ");
+                    tooltipName.append("span")
+                        .attr("id", 'merged_result_name')
+                        .text("");
+                    var tooltipStart = tooltip.append("p")
+                        .append("strong")
+                        .text("Start: ");
+                    tooltipStart.append("span")
+                        .attr("id", 'merged_result_start')
+                        .text("");
+                    var tooltipEnd = tooltip.append("p")
+                        .append("strong")
+                        .text("End: ");
+                    tooltipEnd.append("span")
+                        .attr("id", 'merged_result_end')
+                        .text("");
+                    var tooltipRatings = tooltip.append("p")
+                        .append("strong")
+                        .text("Ratings: ");
+                    tooltipRatings.append("span")
+                        .attr("id", 'merged_result_ratings')
+                        .text("");
+
                     const draw = function () {
                         svg.select('g.x.axis').call(xAxis);
                         update([]);
@@ -152,7 +180,7 @@ angular.module('diploma')
 
                             const last = angular.copy(ratings[ratings.length - 1]);
                             ratings.push({
-                                'datetime': maxDate.toDate(),
+                                'datetime': maxDate.clone().add(100, 'y').toDate(),
                                 'value': last.value
                             });
 
@@ -179,15 +207,39 @@ angular.module('diploma')
                             })
                             .attr("stroke", "#2f6459")
                             .attr("clip-path", "url(#clip)")
-                            .on("mouseover", function() {
+                            .on("mouseover", function(d) {
                                 d3.select(this)
                                     .style("opacity", "1")
                                     .attr("stroke-width", 3.5);
+
+                                //Get this bar's x/y values, then augment for the tooltip
+                                var xPosition = d3.mouse(this)[0] + padding/2;
+                                var yPosition = d3.mouse(this)[1] + padding/2;
+
+                                //Update the tooltip position and value
+                                var tooltip = d3.select("#merged_result_tooltip")
+                                    .style("left", xPosition + "px")
+                                    .style("top", yPosition + "px");
+
+                                tooltip.select("#merged_result_name")
+                                    .text(d.name);
+                                tooltip.select("#merged_result_start")
+                                    .text(moment(d.start).format("DD. MMM. YYYY HH:mm"));
+                                tooltip.select("#merged_result_end")
+                                    .text(moment(d.end).format("DD. MMM. YYYY HH:mm"));
+                                tooltip.select("#merged_result_ratings")
+                                    .text(d.data.length);
+
+                                //Show the tooltip
+                                d3.select("#merged_result_tooltip").classed("hidden", false);
                             })
                             .on("mouseout", function() {
                                 d3.select(this)
                                     .style("opacity", "0.5")
                                     .attr("stroke-width", 1.5);
+
+                                //Hide the tooltip
+                                d3.select("#merged_result_tooltip").classed("hidden", true);
                             });
 
                         paths.exit().remove();

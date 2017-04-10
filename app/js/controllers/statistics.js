@@ -3,16 +3,18 @@
  */
 angular.module('diploma').controller('StatisticsCtrl', [
     '$scope',
+    '$state',
     '$stateParams',
     '$log',
     '$timeout',
+    'SweetAlert',
     'eventService',
     'filterService',
     'converterFactory',
     'modalFactory',
     'filter',
-    function ($scope, $stateParams, $log, $timeout, eventService, filterService, converterFactory, modalFactory,
-              filter) {
+    function ($scope, $state, $stateParams, $log, $timeout, SweetAlert, eventService, filterService, converterFactory,
+              modalFactory, filter) {
         $log.debug("StatisticsCtrl initialized");
 
         $scope.isLoading = true;
@@ -115,6 +117,20 @@ angular.module('diploma').controller('StatisticsCtrl', [
 
         $scope.canCompare = function() {
             return filterService.isSomeSelected();
+        };
+
+        $scope.redirectToEvents = function () {
+            if(filterService.isSomeSelected()) {
+                SweetAlert.confirm("Do you really want to go back?",
+                    {title : "Some lectures are selected"})
+                    .then(function(p) {
+                        if(p) {
+                            $state.go('events');
+                        }
+                    });
+            } else {
+                $state.go('events');
+            }
         };
     }
 ]);
