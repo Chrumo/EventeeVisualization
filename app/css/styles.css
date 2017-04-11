@@ -6,3 +6,11 @@
 .change-btn {
     margin-right: 8px;
 }
+
+.help-modal .modal-dialog {
+    width: 100%;
+}
+
+.help-modal .modal-content {
+    width: 100%;
+}

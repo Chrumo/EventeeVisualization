@@ -132,5 +132,9 @@ angular.module('diploma').controller('StatisticsCtrl', [
                 $state.go('events');
             }
         };
+
+        $scope.openHelp = function () {
+            modalFactory.openHelp('img/hall-insight-help.png');
+        }
     }
 ]);

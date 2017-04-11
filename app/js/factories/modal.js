@@ -21,6 +21,14 @@ angular.module('diploma').factory('modalFactory',
                             }
                         }
                     });
+                },
+                'openHelp': function (image) {
+                    return $uibModal.open({
+                        animation: true,
+                        template: '<img src="' + image + '" style="width: 100%;height: 100%;">',
+                        size: 'lg',
+                        windowClass: 'help-modal'
+                    });
                 }
             };
         }]);

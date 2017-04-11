@@ -18,10 +18,12 @@ elixir(function (mix) {
     const APP = 'app/';
     const JS_SOURCE = APP + 'js/';
     const CSS_SOURCE = APP + 'css/';
+    const IMG_SOURCE = APP + 'img/';
     const BUILD = 'build/';
     const CSS_DESTINATION = BUILD + 'css/';
     const FONT_DESTINATION = BUILD + 'fonts/';
     const JS_DESTINATION = BUILD + 'js/';
+    const IMG_DESTINATION = BUILD + 'img/';
 
     ///////////////////////////////////////////////////// CLEAN UP ///////////////////////////////////////////////////
     mix.remove([
@@ -80,6 +82,7 @@ elixir(function (mix) {
 
     ///////////////////////////////////////////////////// IMAGES /////////////////////////////////////////////////////
     mix.copy(NODE + 'slick-carousel/slick/ajax-loader.gif', CSS_DESTINATION);
+    mix.copy(IMG_SOURCE, IMG_DESTINATION);
 
     ///////////////////////////////////////////////////// HTML ///////////////////////////////////////////////////////
     mix.html('index.html', BUILD, APP);
