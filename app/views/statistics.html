@@ -42,7 +42,7 @@
         <div class="col-lg-2 text-right">
             <p style="margin-top: 44px;">{{ hall.name }}</p>
         </div>
-        <div class="col-lg-5" ng-repeat="day in days" ng-init="data = getHallInsightDate(day, hall)">
+        <div class="col-lg-5" ng-repeat="day in days" ng-init="data = getHallInsightData(day, hall)">
             <hall-insight data="data.lectures" max-val="data.maxVal" start="data.start" end="data.end"
                           ng-click="onLectureSelect" refresh="refresh"></hall-insight>
             <slick settings="slicks[day.order][hall.id]" style="height: 75px;"

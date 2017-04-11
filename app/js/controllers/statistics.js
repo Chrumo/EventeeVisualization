@@ -90,7 +90,7 @@ angular.module('diploma').controller('StatisticsCtrl', [
             filterChanged();
         };
 
-        $scope.getHallInsightDate = function (day, hall) {
+        $scope.getHallInsightData = function (day, hall) {
             return eventService.getHallInsightData(+day.order, +hall.id);
         };
 
