@@ -5,10 +5,11 @@ angular.module('diploma')
     .directive('lectureComparison', [
         '$log',
         '$window',
+        '$filter',
         'attributeTypeService',
         'mathFactory',
         'attributeType',
-        function ($log, $window, attributeTypeService, mathFactory, attributeType) {
+        function ($log, $window, $filter, attributeTypeService, mathFactory, attributeType) {
             return {
                 restrict: 'E',
                 scope: {
@@ -52,6 +53,12 @@ angular.module('diploma')
                         .attr("transform", "translate(0," + (h - padding) + ")")
                         .call(xAxis);
 
+                    // Add the text label for the x axis
+                    svg.append("text")
+                        .attr("transform", "translate(" + (w / 2) + " ," + h + ")")
+                        .style("text-anchor", "middle")
+                        .text("Lectures");
+
                     const createTooltip = function() {
                         var tooltip = d3.select("#lecture_comparison_tooltip");
 
@@ -72,6 +79,7 @@ angular.module('diploma')
 
                         angular.forEach(scope.attr, function(attrName) {
                             var tooltipAttr = tooltip.append("p")
+                                .attr("style", "color: " + attributeTypeService.getColor(attrName))
                                 .append("strong")
                                 .text(attributeTypeService.getName(attrName) + ": ");
                             tooltipAttr.append("span")
@@ -89,13 +97,14 @@ angular.module('diploma')
 
                     const getRectY = function(values, i) {
                         var tmpHeight = 0;
-                        for(var index = 0; index <= i; index++) {
+                        var attrNum = scope.attr.length;
+                        for(var index = attrNum; index >= i; index--) {
                             tmpHeight += getRectHeight(values[index]);
                         }
                         return h - padding - tmpHeight;
                     };
 
-                    /****************************************************** RENDER ******************************************************/
+                    /******************************************** RENDER ********************************************/
                     scope.render = function(dataset) {
                         if (angular.isUndefined(dataset) || dataset.length === 0
                             || dataset[0].normalized.length !== scope.attr.length) {
@@ -117,8 +126,6 @@ angular.module('diploma')
                             });
                             d.values = intValues;
                         });
-
-                        dataset.reverse();
 
                         //Update scale domains
                         xScale.domain(d3.range(dataset.length));
@@ -166,11 +173,8 @@ angular.module('diploma')
                                     tooltip.select("#lecture_comparison_name")
                                         .text(dataset[i].name);
                                     angular.forEach(scope.attr, function(attr, index) {
-                                        var tooltipAttr = tooltip.select("#lecture_comparison_" + attr)
-                                            .text(dataset[i].values[index]);
-                                        if(index === highlightIndex) {
-                                            d3.select(tooltipAttr.node().parentNode).style("color", "red");
-                                        }
+                                        tooltip.select("#lecture_comparison_" + attr)
+                                            .text($filter('number')(dataset[i].values[index]));
                                     });
 
                                     //Show the tooltip
@@ -180,10 +184,6 @@ angular.module('diploma')
                                     //Hide the tooltip
                                     var tooltip = d3.select("#lecture_comparison_tooltip");
                                     tooltip.classed("hidden", true);
-                                    angular.forEach(scope.attr, function(attr) {
-                                        d3.select(tooltip.select("#lecture_comparison_" + attr).node().parentNode)
-                                            .style("color", "black");
-                                    });
                                 });
                         });
 

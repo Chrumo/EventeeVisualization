@@ -10,12 +10,13 @@ angular.module('diploma')
             return {
                 restrict: 'E',
                 scope: {
-                    data: '='
+                    data: '=',
+                    yAxisText: '@'
                 },
                 link: function (scope, element) {
                     var w = 850;
                     var h = 400;
-                    var padding = 30;
+                    var padding = 42;
 
                     const getMinTime = function() {
                         var minTime = moment().add(100, 'y');
@@ -99,11 +100,26 @@ angular.module('diploma')
                         .attr("transform", "translate(0," + (h - padding) + ")")
                         .call(xAxis);
 
+                    // Add the text label for the x axis
+                    svg.append("text")
+                        .attr("transform", "translate(" + (w / 2) + " ," + h + ")")
+                        .style("text-anchor", "middle")
+                        .text("Date");
+
                     //Create Y axis
                     svg.append("g")
                         .attr("class", "y axis")
                         .attr("transform", "translate(" + padding + ",0)")
                         .call(yAxis);
+
+                    // Add the text label for the Y axis
+                    svg.append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", 0)
+                        .attr("x", 0 - (h / 2))
+                        .attr("dy", "1em")
+                        .style("text-anchor", "middle")
+                        .text(scope.yAxisText);
 
                     var tooltip = elem.append("div")
                         .attr("id", "merged_result_tooltip")
@@ -141,14 +157,14 @@ angular.module('diploma')
 
                     var zoom = d3.behavior.zoom()
                         .x(xScale)
-                        .scaleExtent([1, 50])
+                        .scaleExtent([1, 25])
                         .on("zoom", draw);
 
                     svg.append("rect")
                         .attr("class", "zoom x box")
                         .attr("width", w - 2 * padding)
-                        .attr("height", h - 2 * padding)
-                        .attr("transform", "translate(" + 0 + "," + (h - 2 * padding) + ")")
+                        .attr("height", h - padding)
+                        .attr("transform", "translate(" + padding + "," + padding + ")")
                         .style("visibility", "hidden")
                         .attr("pointer-events", "all")
                         .call(zoom);

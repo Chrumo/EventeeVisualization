@@ -5,8 +5,9 @@ angular.module('diploma')
     .directive('hallInsight', [
         '$log',
         '$window',
+        '$filter',
         'filterService',
-        function ($log, $window, filterService) {
+        function ($log, $window, $filter, filterService) {
             return {
                 restrict: 'E',
                 scope: {
@@ -158,8 +159,7 @@ angular.module('diploma')
                             .on("mouseover", function (d) {
                                 d3.select("#lecture_" + d.id)
                                     .classed("active", true);
-                                text.text(d.value)
-                                // text.text(d.id)
+                                text.text($filter('number')(d.value))
                                     .attr("text-anchor", "middle")
                                     .attr("x", (xScale(d.start) + xScale(d.end)) / 2)
                                     .attr("y", 25)

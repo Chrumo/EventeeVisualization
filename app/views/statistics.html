@@ -20,6 +20,9 @@
         </div>
         <button class="btn btn-primary pull-right" ng-disabled="!canCompare()" ng-click="merge()">Compare</button>
         <a class="btn btn-default pull-right change-btn" ng-click="redirectToEvents()">Change event</a>
+        <a class="btn btn-success pull-right change-btn" ng-click="changeDataType()">
+            {{ isAverageDataTypeSelected() ? 'Reviews' : 'Average' }}
+        </a>
         <a class="btn btn-info pull-right change-btn" ng-click="openHelp()">Help</a>
     </div>
     <div class="row">
@@ -42,7 +45,7 @@
         <div class="col-lg-2 text-right">
             <p style="margin-top: 44px;">{{ hall.name }}</p>
         </div>
-        <div class="col-lg-5" ng-repeat="day in days" ng-init="data = getHallInsightData(day, hall)">
+        <div class="col-lg-5" ng-repeat="day in days" ng-init="data = getHallInsightData(day, hall)" ng-if="viewAllData">
             <hall-insight data="data.lectures" max-val="data.maxVal" start="data.start" end="data.end"
                           ng-click="onLectureSelect" refresh="refresh"></hall-insight>
             <slick settings="slicks[day.order][hall.id]" style="height: 75px;"

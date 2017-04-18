@@ -12,8 +12,6 @@ angular.module('diploma').controller("eventsCtrl",
 
         $scope.events = [];
         $scope.max = {};
-        $scope.max[statisticsType.IOS] = 0;
-        $scope.max[statisticsType.ANDROID] = 0;
         $scope.max[statisticsType.REVIEWS] = 0;
         $scope.max[statisticsType.RATING] = 5;
         $scope.max[statisticsType.HALLS] = 0;
@@ -32,8 +30,6 @@ angular.module('diploma').controller("eventsCtrl",
 
         eventService.getAllWithStatisticsAsync(function(events) {
             angular.forEach(events, function(event) {
-                setMaximalValues(statisticsType.IOS, event[statisticsType.IOS]);
-                setMaximalValues(statisticsType.ANDROID, event[statisticsType.ANDROID]);
                 setMaximalValues(statisticsType.REVIEWS, event[statisticsType.REVIEWS]);
                 setMaximalValues(statisticsType.HALLS, event[statisticsType.HALLS]);
                 setMaximalValues(statisticsType.SESSIONS, event[statisticsType.SESSIONS]);
@@ -44,12 +40,12 @@ angular.module('diploma').controller("eventsCtrl",
         });
 
         $scope.sortType = 'name';
-        $scope.sortReverse = false;
+        $scope.sortReverse = true;
 
         var lastChosen = $scope.sortType;
         $scope.resort = function(attr) {
             if(lastChosen !== attr) {
-                $scope.sortReverse = true;
+                $scope.sortReverse = false;
                 lastChosen = attr;
             }
             $scope.sortType = attr;

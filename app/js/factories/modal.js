@@ -9,7 +9,7 @@ angular.module('diploma').factory('modalFactory',
             $log.debug("modalFactory initialized");
 
             return {
-                'openMergedResult': function (lectureIds) {
+                'openMergedResult': function (lectureIds, dataType) {
                     return $uibModal.open({
                         animation: true,
                         templateUrl: 'views/modals/merged_result.html',
@@ -18,6 +18,9 @@ angular.module('diploma').factory('modalFactory',
                         resolve: {
                             'lectureIds': function () {
                                 return lectureIds;
+                            },
+                            'type': function () {
+                                return dataType;
                             }
                         }
                     });

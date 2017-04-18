@@ -12,8 +12,9 @@ angular.module('diploma').service('eventService', [
     'event',
     'statisticsType',
     'attributeType',
+    'dataType',
     function($log, $q, Restangular, filterService, helperService, converterFactory, mathFactory, event, statisticsType,
-             attributeType) {
+             attributeType, dataType) {
         $log.debug("eventService initialized");
 
         var getAllWithStatisticsAsync = function(callback) {
@@ -29,8 +30,6 @@ angular.module('diploma').service('eventService', [
                             'name': event.name,
                             'status': event.status
                         };
-                        retEvent[statisticsType.IOS] = analytics.iOS;
-                        retEvent[statisticsType.ANDROID] = analytics.android;
                         retEvent[statisticsType.REVIEWS] = analytics.reviews;
                         retEvent[statisticsType.RATING] = analytics.rating;
                         retEvent[statisticsType.HALLS] = analytics.halls;
@@ -212,7 +211,7 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
-        const getHallInsightData = function(day, hallId) {
+        const getHallInsightData = function(day, hallId, type) {
             $log.debug('eventService.getHallInsightData(' + typeof day + ' ' + day + ', ' +
                 typeof hallId + ' ' + hallId + ')');
             if(!angular.isDefined(event[day]) && !angular.isDefined(event[day].halls[hallId])) {
@@ -221,7 +220,7 @@ angular.module('diploma').service('eventService', [
             }
             var retArr = {
                 'lectures': [],
-                'maxVal': helperService.getMaxNumberOfRatings(),
+                'maxVal': type === dataType.AVERAGE ? 5 : helperService.getMaxNumberOfRatings(),
                 'start': helperService.getHallStart(day),
                 'end': helperService.getHallEnd(day)
             };
@@ -231,7 +230,8 @@ angular.module('diploma').service('eventService', [
                     'id': lectureId,
                     'start': lecture.start,
                     'end': lecture.end,
-                    'value': lecture.ratings.length
+                    'value': type === dataType.AVERAGE ?
+                        mathFactory.average(lecture.ratings, 'rating') : lecture.ratings.length
                 });
             });
             retArr.lectures.sort(function(a, b) {
@@ -240,7 +240,7 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
-        const getLectureData = function(lectureIds) {
+        const getLectureData = function(lectureIds, type) {
             $log.debug('eventService.getLectureData(' + typeof lectureIds + ' ' + lectureIds + ')');
             if(angular.isUndefined(lectureIds)) {
                 $log.error('Not known lectures with id=' + lectureIds);
@@ -274,9 +274,6 @@ angular.module('diploma').service('eventService', [
                 ratings = ratings.sort(function(a, b) {
                     return a.datetime.diff(b.datetime);
                 });
-                angular.forEach(ratings, function (rating, index) {
-                    rating.value = index;
-                });
                 if(ratings.length === 1) {
                     ratings.push({
                         'id': 0,
@@ -285,6 +282,14 @@ angular.module('diploma').service('eventService', [
                         'datetime': lecture.end
                     });
                 }
+                angular.forEach(ratings, function (rating, index) {
+                    if(type === dataType.AVERAGE) {
+                        const tmpRatings = ratings.slice(0, index);
+                        rating.value = mathFactory.average(tmpRatings, 'rating');
+                    } else {
+                        rating.value = index;
+                    }
+                });
                 retArr[lectureId].data = ratings;
             });
             return retArr;
@@ -349,7 +354,7 @@ angular.module('diploma').service('eventService', [
             });
         };
 
-        const getLectureComparisonData = function(lectureIds, attributes) {
+        const getLectureComparisonData = function(lectureIds, attributes, orderBy) {
             if(!angular.isArray(lectureIds)) {
                 return [];
             }
@@ -377,9 +382,23 @@ angular.module('diploma').service('eventService', [
                 retArr.push(retLecture);
             });
 
-            retArr.sort(function(a, b) {
-                return mathFactory.sum(a.normalized) - mathFactory.sum(b.normalized);
-            });
+            var sortIndex = -1;
+            if(angular.isDefined(orderBy)) {
+                angular.forEach(attributes, function (attr, i) {
+                    if(orderBy === attr) {
+                        sortIndex = i;
+                    }
+                });
+            }
+            if(sortIndex > -1) {
+                retArr.sort(function(a, b) {
+                    return b.normalized[sortIndex] - a.normalized[sortIndex];
+                });
+            } else {
+                retArr.sort(function(a, b) {
+                    return mathFactory.sum(b.normalized) - mathFactory.sum(a.normalized);
+                });
+            }
 
             return retArr;
         };

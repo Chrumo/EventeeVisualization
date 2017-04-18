@@ -13,8 +13,9 @@ angular.module('diploma').controller('StatisticsCtrl', [
     'converterFactory',
     'modalFactory',
     'filter',
+    'dataType',
     function ($scope, $state, $stateParams, $log, $timeout, SweetAlert, eventService, filterService, converterFactory,
-              modalFactory, filter) {
+              modalFactory, filter, dataType) {
         $log.debug("StatisticsCtrl initialized");
 
         $scope.isLoading = true;
@@ -23,6 +24,8 @@ angular.module('diploma').controller('StatisticsCtrl', [
         $scope.filterModel = filter;
         $scope.refresh = false;
         $scope.slicks = {};
+        $scope.dataType = dataType.REVIEWS;
+        $scope.viewAllData = true;
 
         eventService.getDataAsync(parseInt($stateParams.id), function(data) {
             $scope.data = data;
@@ -91,7 +94,7 @@ angular.module('diploma').controller('StatisticsCtrl', [
         };
 
         $scope.getHallInsightData = function (day, hall) {
-            return eventService.getHallInsightData(+day.order, +hall.id);
+            return eventService.getHallInsightData(+day.order, +hall.id, $scope.dataType);
         };
 
         $scope.onLectureSelect = function(lectureId) {
@@ -108,11 +111,11 @@ angular.module('diploma').controller('StatisticsCtrl', [
         };
 
         $scope.getLectureMultipleData = function(lectureId) {
-            return eventService.getLectureData(lectureId)[lectureId];
+            return eventService.getLectureData(lectureId, $scope.dataType)[lectureId];
         };
 
         $scope.merge = function() {
-            modalFactory.openMergedResult(filterService.getSelectedIds());
+            modalFactory.openMergedResult(filterService.getSelectedIds(), $scope.dataType);
         };
 
         $scope.canCompare = function() {
@@ -131,6 +134,22 @@ angular.module('diploma').controller('StatisticsCtrl', [
             } else {
                 $state.go('events');
             }
+        };
+
+        $scope.isAverageDataTypeSelected = function() {
+            return $scope.dataType === dataType.AVERAGE;
+        };
+
+        $scope.changeDataType = function () {
+            $scope.viewAllData = false;
+            if($scope.isAverageDataTypeSelected()) {
+                $scope.dataType = dataType.REVIEWS;
+            } else {
+                $scope.dataType = dataType.AVERAGE;
+            }
+            $timeout(function() {
+                $scope.viewAllData = true;
+            });
         };
 
         $scope.openHelp = function () {

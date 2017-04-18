@@ -9,11 +9,13 @@ angular.module('diploma').controller("MergedResultCtrl", [
     'attributeTypeService',
     'converterFactory',
     'attributeType',
+    'dataType',
     'lectureIds',
+    'type',
     function ($scope, $uibModalInstance, $log, eventService, attributeTypeService, converterFactory,
-              attributeType, lectureIds) {
+              attributeType, dataType, lectureIds, type) {
 
-        $scope.lectures = converterFactory.idDictionaryToArray(eventService.getLectureData(lectureIds));
+        $scope.lectures = converterFactory.idDictionaryToArray(eventService.getLectureData(lectureIds, type));
 
         $scope.attributeType = attributeType;
         $scope.getAttributeName = attributeTypeService.getName;
@@ -44,9 +46,15 @@ angular.module('diploma').controller("MergedResultCtrl", [
             return retArr;
         };
 
+        $scope.orderBy = ''; // default value => order by sum
+
         $scope.attributeChanged = function() {
             $scope.attributesArr = getAttributesArray();
-            $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds, $scope.attributesArr);
+            $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds, $scope.attributesArr, $scope.orderBy);
+        };
+
+        $scope.getYAxisText = function() {
+            return type === dataType.AVERAGE ? "Average rating" : "Number of ratings";
         };
 
         $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds);
