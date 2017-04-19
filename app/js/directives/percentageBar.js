@@ -3,7 +3,11 @@
  */
 angular.module('diploma')
     .directive('percentageBar',
-        function ($window, $timeout, $log) {
+        [
+            '$window',
+            '$timeout',
+            '$log',
+            function ($window, $timeout, $log) {
             return {
                 restrict: 'E',
                 scope: {
@@ -79,4 +83,4 @@ angular.module('diploma')
                     };
                 }
             }
-        });
+        }]);

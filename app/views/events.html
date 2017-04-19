@@ -16,20 +16,20 @@
         <tr>
             <th ng-click="resort('name')" style="cursor: pointer;">
                 Name
-                <span ng-show="sortType == 'name' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'name' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'name' && sortReverse" class="fa fa-caret-down"></span>
+                <span ng-show="sortType == 'name' && !sortReverse" class="fa fa-caret-up"></span>
                 <span ng-show="sortType != 'name'" class="fa fa-caret-right"></span>
             </th>
             <th ng-repeat="(key, value) in max" ng-click="resort(key)" style="cursor: pointer;">
                 {{ getName(key) }}
-                <span ng-show="sortType == key && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == key && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == key && sortReverse" class="fa fa-caret-down"></span>
+                <span ng-show="sortType == key && !sortReverse" class="fa fa-caret-up"></span>
                 <span ng-show="sortType != key" class="fa fa-caret-right"></span>
             </th>
             <th ng-click="resort('status')" style="cursor: pointer;">
                 Status
-                <span ng-show="sortType == 'status' && !sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'status' && sortReverse" class="fa fa-caret-up"></span>
+                <span ng-show="sortType == 'status' && sortReverse" class="fa fa-caret-down"></span>
+                <span ng-show="sortType == 'status' && !sortReverse" class="fa fa-caret-up"></span>
                 <span ng-show="sortType != 'status'" class="fa fa-caret-right"></span>
             </th>
         </tr>
