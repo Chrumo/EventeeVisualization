@@ -22,6 +22,7 @@
     "bootstrap": "^3.3.7",
     "d3": "^3.5.17",
     "d3-svg-legend": "^2.24.0",
+    "font-awesome": "^4.7.0",
     "gulp": "^3.9.1",
     "jquery": "^3.1.1",
     "laravel-elixir": "^6.0.0-15",
