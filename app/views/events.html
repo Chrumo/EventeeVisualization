@@ -26,12 +26,6 @@
                 <span ng-show="sortType == key && !sortReverse" class="fa fa-caret-up"></span>
                 <span ng-show="sortType != key" class="fa fa-caret-right"></span>
             </th>
-            <th ng-click="resort('status')" style="cursor: pointer;">
-                Status
-                <span ng-show="sortType == 'status' && sortReverse" class="fa fa-caret-down"></span>
-                <span ng-show="sortType == 'status' && !sortReverse" class="fa fa-caret-up"></span>
-                <span ng-show="sortType != 'status'" class="fa fa-caret-right"></span>
-            </th>
         </tr>
         <tr ng-repeat="event in events | orderBy:sortType:sortReverse" ui-sref="event.stats({id: event.id})"
         style="cursor: pointer;">
@@ -40,7 +34,6 @@
                 <span ng-if="!event[key]">No record</span>
                 <percentage-bar ng-if="event[key]" amount="event[key]" max="max[key]"></percentage-bar>
             </td>
-            <td>{{ getStatusTranslation(event.status) }}</td>
         </tr>
     </table>
 </div>
