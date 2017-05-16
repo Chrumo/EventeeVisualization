@@ -27,8 +27,7 @@ angular.module('diploma').service('eventService', [
                     }).then(function(analytics) {
                         retEvent = {
                             'id': event.id,
-                            'name': event.name,
-                            'status': event.status
+                            'name': event.name
                         };
                         retEvent[statisticsType.REVIEWS] = analytics.reviews;
                         retEvent[statisticsType.RATING] = analytics.rating;

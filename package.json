@@ -11,7 +11,7 @@
   },
   "scripts": {
     "update-deps": "npm update",
-    "prestart": "npm install && gulp",
+    "prestart": "npm install && gulp --production",
     "start": "http-server -a localhost -p 8000 -c-1 ./build"
   },
   "dependencies": {

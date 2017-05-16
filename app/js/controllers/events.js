@@ -40,7 +40,7 @@ angular.module('diploma').controller("eventsCtrl",
         });
 
         $scope.sortType = 'name';
-        $scope.sortReverse = true;
+        $scope.sortReverse = false;
 
         var lastChosen = $scope.sortType;
         $scope.resort = function(attr) {
