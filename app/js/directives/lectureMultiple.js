@@ -1,4 +1,5 @@
 /**
+ * Directive representing lecture multiple visualization.
  * Created by tomas on 26.11.16.
  */
 angular.module('diploma')
@@ -19,6 +20,10 @@ angular.module('diploma')
                     var h = 75;
                     var padding = 25;
 
+                    /**
+                     * Return maximal time from all lectures ends and theirs ratings.
+                     * @return {Moment}
+                     */
                     const getMaxTime = function() {
                         var maxTime = scope.end.clone();
                         angular.forEach(scope.data, function (rating) {
@@ -29,6 +34,10 @@ angular.module('diploma')
                         return maxTime;
                     };
 
+                    /**
+                     * Return tics distribution and format based on visualization duration.
+                     * @return {{unit: (((m:number)=>Moment)|(()=>number)|number|*), count: number, format}}
+                     */
                     const getTicks = function() {
                         const s = scope.start.clone();
                         const e = getMaxTime().clone();

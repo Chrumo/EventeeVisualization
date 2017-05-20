@@ -1,4 +1,5 @@
 /**
+ * Directive representing hall insight visualization.
  * Created by tomas on 26.11.16.
  */
 angular.module('diploma')
@@ -79,7 +80,7 @@ angular.module('diploma')
                         .attr("class", "hidden")
                         .style("pointer-events", "none");
 
-                    /****************************************************** RENDER ******************************************************/
+/****************************************************** RENDER ******************************************************/
                     scope.render = function (dataset) {
                         if (dataset === undefined) {
                             return;
@@ -159,7 +160,7 @@ angular.module('diploma')
                             .on("mouseover", function (d) {
                                 d3.select("#lecture_" + d.id)
                                     .classed("active", true);
-                                text.text($filter('number')(d.value))
+                                text.text($filter('number')($filter('number')(d.value, 1)))
                                     .attr("text-anchor", "middle")
                                     .attr("x", (xScale(d.start) + xScale(d.end)) / 2)
                                     .attr("y", 25)

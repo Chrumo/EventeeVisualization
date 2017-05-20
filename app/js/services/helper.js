@@ -1,4 +1,5 @@
 /**
+ * Service providing helpers functions.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').service('helperService',
@@ -8,16 +9,29 @@ angular.module('diploma').service('helperService',
         function ($log, helpers) {
             $log.debug("helperService initialized");
 
+            /**
+             * Sets maximal numbers of ratings.
+             * @param num
+             */
             var setMaxNumberOfRatings = function(num) {
                 if(angular.isDefined(num) && helpers.maxNumberOfRatings < num) {
                     helpers.maxNumberOfRatings = num;
                 }
             };
 
+            /**
+             * Gets maximal numbers of ratings.
+             * @return {number}
+             */
             var getMaxNumberOfRatings = function() {
                 return helpers.maxNumberOfRatings;
             };
 
+            /**
+             * Save minimal hall start from one day.
+             * @param day
+             * @param start
+             */
             var setHallStart = function(day, start) {
                 if(angular.isUndefined(day)) {
                     return;
@@ -34,10 +48,19 @@ angular.module('diploma').service('helperService',
                 }
             };
 
+            /**
+             * Gets minimal hall start from one day.
+             * @param day
+             */
             var getHallStart = function(day) {
                 return helpers.halls[day].start;
             };
 
+            /**
+             * Save maximal hall end from one day.
+             * @param day
+             * @param end
+             */
             var setHallEnd = function(day, end) {
                 if(angular.isUndefined(day)) {
                     return;
@@ -54,33 +77,17 @@ angular.module('diploma').service('helperService',
                 }
             };
 
+            /**
+             * Gets maximal hall end from one day.
+             * @param day
+             */
             var getHallEnd = function(day) {
                 return helpers.halls[day].end;
             };
 
-            var getMinMaxDate = function(object, minValue, maxValue) {
-                if(!angular.isArray(object) && !angular.isObject(object) &&
-                    (angular.isArray(object) && object.length === 0) &&
-                    (angular.isObject(object) && _.isEmpty(object))) {
-                    return {
-                        'min': moment(),
-                        'max': moment()
-                    };
-                }
-                var retArr = {
-                    'min': moment().add('100', 'y'),
-                    'max': moment().subtract('100', 'y')
-                };
-                angular.forEach(object, function(obj) {
-                    if(obj[minValue].isBefore(retArr.min)) {
-                        retArr.min = obj[minValue];
-                    }
-                    if(obj[maxValue].isAfter(retArr.max)) {
-                        retArr.max = obj[maxValue];
-                    }
-                });
-            };
-
+            /**
+             * Clear helpers value.
+             */
             const clear = function () {
                 helpers.maxNumberOfRatings = 0;
                 angular.forEach(helpers.halls, function (h, i) {
@@ -89,7 +96,6 @@ angular.module('diploma').service('helperService',
             };
 
             return {
-                'getMinMaxDate': getMinMaxDate,
                 'setMaxNumberOfRatings': setMaxNumberOfRatings,
                 'getMaxNumberOfRatings': getMaxNumberOfRatings,
                 'setHallStart': setHallStart,

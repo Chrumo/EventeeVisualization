@@ -1,4 +1,5 @@
 /**
+ * Directive representing lecture comparison visualization.
  * Created by tomas on 26.11.16.
  */
 angular.module('diploma')
@@ -59,6 +60,9 @@ angular.module('diploma')
                         .style("text-anchor", "middle")
                         .text("Lectures");
 
+                    /**
+                     * Function will create tooltip in DOM.
+                     */
                     const createTooltip = function() {
                         var tooltip = d3.select("#lecture_comparison_tooltip");
 
@@ -88,6 +92,11 @@ angular.module('diploma')
                         });
                     };
 
+                    /**
+                     * Return height of rectangle based on chosen attributes.
+                     * @param values
+                     * @returns {number}
+                     */
                     const getRectHeight = function(values) {
                         if(angular.isDefined(values) && !angular.isArray(values)) {
                             values = [values];
@@ -95,6 +104,12 @@ angular.module('diploma')
                         return h - padding - yScale(mathFactory.sum(values));
                     };
 
+                    /**
+                     * Return y coordinate of rectangles bottom left corner based on chosen attributes.
+                     * @param values
+                     * @param i
+                     * @returns {number}
+                     */
                     const getRectY = function(values, i) {
                         var tmpHeight = 0;
                         var attrNum = scope.attr.length;
@@ -174,7 +189,7 @@ angular.module('diploma')
                                         .text(dataset[i].name);
                                     angular.forEach(scope.attr, function(attr, index) {
                                         tooltip.select("#lecture_comparison_" + attr)
-                                            .text($filter('number')(dataset[i].values[index]));
+                                            .text($filter('number')($filter('number')(dataset[i].values[index], 1)));
                                     });
 
                                     //Show the tooltip

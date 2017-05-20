@@ -1,4 +1,5 @@
 /**
+ * Final modal window controller.
  * @author tomas
  */
 angular.module('diploma').controller("MergedResultCtrl", [
@@ -15,11 +16,27 @@ angular.module('diploma').controller("MergedResultCtrl", [
     function ($scope, $uibModalInstance, $log, eventService, attributeTypeService, converterFactory,
               attributeType, dataType, lectureIds, type) {
 
+        /**
+         * Contain information about all selected lectures.
+         * @type {Array}
+         */
         $scope.lectures = converterFactory.idDictionaryToArray(eventService.getLectureData(lectureIds, type));
 
+        /**
+         * Contain information about chosen attribute.
+         * @type {*}
+         */
         $scope.attributeType = attributeType;
+        /**
+         * Contain human readable name of chosen attribute.
+         * @type {getName}
+         */
         $scope.getAttributeName = attributeTypeService.getName;
 
+        /**
+         * Contain which attribute is selected and which is not.
+         * @type {Array}
+         */
         $scope.attributesArr = attributeType.ALL;
         $scope.attributes = {};
         $scope.attributes[attributeType.RATINGS] = {
@@ -38,6 +55,11 @@ angular.module('diploma').controller("MergedResultCtrl", [
             'value': true
         };
 
+        /**
+         * Return array of chosen attributes.
+         * @return {Array}
+         * @private
+         */
         const getAttributesArray = function() {
             var retArr = [];
             angular.forEach($scope.attributes, function(attr, index) {
@@ -48,17 +70,31 @@ angular.module('diploma').controller("MergedResultCtrl", [
 
         $scope.orderBy = ''; // default value => order by sum
 
+        /**
+         * Redraw lecture comparison visualization when user choose different attributes.
+         */
         $scope.attributeChanged = function() {
             $scope.attributesArr = getAttributesArray();
             $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds, $scope.attributesArr, $scope.orderBy);
         };
 
+        /**
+         * Gets human readable name of chosen attribute.
+         * @return {string}
+         */
         $scope.getYAxisText = function() {
             return type === dataType.AVERAGE ? "Average rating" : "Number of ratings";
         };
 
+        /**
+         * Contain lecture comparison data.
+         * @type {Array}
+         */
         $scope.lectureComparison = eventService.getLectureComparisonData(lectureIds);
 
+        /**
+         * Close modal window.
+         */
         $scope.close = function () {
             $uibModalInstance.dismiss('cancel');
         };

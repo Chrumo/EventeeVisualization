@@ -1,4 +1,5 @@
 /**
+ * Configuration of Restangular library. It enables logging of every request and response.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').config([

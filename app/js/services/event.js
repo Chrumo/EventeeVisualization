@@ -1,4 +1,5 @@
 /**
+ * Service providing download and convert regarding all visualizations data.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').service('eventService', [
@@ -17,6 +18,11 @@ angular.module('diploma').service('eventService', [
              attributeType, dataType) {
         $log.debug("eventService initialized");
 
+        /**
+         * Download data and add as input to callback.
+         * Data contain information about all events with their basic statistics.
+         * @param callback
+         */
         var getAllWithStatisticsAsync = function(callback) {
             Restangular.all('user/events').getList().then(function(events) {
                 var promises = [];
@@ -43,12 +49,27 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Download data and add as input to callback.
+         * Data contain information about event with id as input.
+         * @param id
+         * @param callback
+         * @private
+         */
         const _getEventData = function(id, callback) {
             Restangular.one('event', id).get().then(function(eventFS) {
                 callback(eventFS);
             });
         };
 
+        /**
+         * Download data and add as input to callback.
+         * Data contain information about events favorites with eventId as input.
+         * @param eventId
+         * @param callback
+         * @return {*}
+         * @private
+         */
         const _getFavorites = function(eventId, callback) {
             return Restangular.all('event').get('lecturesanalytics', {}, {
                 confId: eventId
@@ -57,6 +78,13 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Download data and add as input to callback.
+         * Data contain all information about event with id as input.
+         * @param id
+         * @param callback
+         * @private
+         */
         const _getContent = function(id, callback) {
             _getEventData(id, function(eventFS) {
                 const startDate = converterFactory.dateFromServer(eventFS.startDate);
@@ -114,6 +142,15 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Download data and add as input to callback.
+         * Data contain information all ratings of lecture with lectureId as id.
+         * @param eventId
+         * @param lectureId
+         * @param callback
+         * @return {*}
+         * @private
+         */
         const _getRatings = function(eventId, lectureId, callback) {
             return Restangular.one('lecture', lectureId).all('ratings').get('', {}, {
                 confId: eventId
@@ -122,6 +159,12 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Get lecture with id lectureId from downloaded data.
+         * @param lectureId
+         * @return {{}}
+         * @private
+         */
         const _getLecture = function(lectureId) {
             var retLecture = {};
             angular.forEach(event, function(day) {
@@ -138,6 +181,11 @@ angular.module('diploma').service('eventService', [
             return retLecture;
         };
 
+        /**
+         * Download, convert and save all data about one conference.
+         * @param id
+         * @param callback
+         */
         const getDataAsync = function(id, callback) {
             $log.debug('eventService.getDataAsync(' + typeof id + ' ' + id + ', ' + typeof callback + ')');
             angular.forEach(event, function (e, id) {
@@ -180,6 +228,10 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Return conference days as array.
+         * @return {Array}
+         */
         const getDaysAsArray = function() {
             var retArr = [];
             angular.forEach(event, function(day, order) {
@@ -192,6 +244,10 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        /**
+         * Return conference halls as array.
+         * @return {Array}
+         */
         const getHallsAsArray = function() {
             var retArr = [];
             angular.forEach(event, function(day) {
@@ -210,6 +266,13 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        /**
+         * Return converted data for visualization hall insight.
+         * @param day
+         * @param hallId
+         * @param type
+         * @return {*}
+         */
         const getHallInsightData = function(day, hallId, type) {
             $log.debug('eventService.getHallInsightData(' + typeof day + ' ' + day + ', ' +
                 typeof hallId + ' ' + hallId + ')');
@@ -239,6 +302,12 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        /**
+         * Return converted data for visualization lecture miniature and merged result.
+         * @param lectureIds
+         * @param type
+         * @return {{}}
+         */
         const getLectureData = function(lectureIds, type) {
             $log.debug('eventService.getLectureData(' + typeof lectureIds + ' ' + lectureIds + ')');
             if(angular.isUndefined(lectureIds)) {
@@ -294,6 +363,11 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        /**
+         * Contains maximal values of all lectures attributes.
+         * @type {{}}
+         * @private
+         */
         const _maxAttributesValue = {};
         _maxAttributesValue[attributeType.RATINGS] = 0;
         _maxAttributesValue[attributeType.COMMENTS] = 0;
@@ -301,6 +375,13 @@ angular.module('diploma').service('eventService', [
         _maxAttributesValue[attributeType.FAVORITES] = 0;
         _maxAttributesValue[attributeType.AVG_RATING] = 0;
 
+        /**
+         * Return normalize value of an attribute attr.
+         * @param value
+         * @param attr
+         * @return {number}
+         * @private
+         */
         const _normalizeValue = function(value, attr) {
             if(_maxAttributesValue[attr] === 0) {
                 return 0;
@@ -309,6 +390,14 @@ angular.module('diploma').service('eventService', [
             }
         };
 
+        /**
+         * Compute and return value of given lecture of given attribute.
+         * @param lecture
+         * @param attr
+         * @param normalize - whether return real value or normalized value
+         * @return {*}
+         * @private
+         */
         const _getLectureAttribute = function(lecture, attr, normalize) {
             if(angular.isUndefined(normalize)) {
                 normalize = true;
@@ -344,6 +433,12 @@ angular.module('diploma').service('eventService', [
             }
         };
 
+        /**
+         * Sets _maxAttributesValue with correct data.
+         * @param lectures
+         * @param attributes
+         * @private
+         */
         const _setMaxValues = function(lectures, attributes) {
             angular.forEach(lectures, function(lecture) {
                 angular.forEach(attributes, function(attribute) {
@@ -353,6 +448,13 @@ angular.module('diploma').service('eventService', [
             });
         };
 
+        /**
+         * Return converted data for visualization lecture comparison.
+         * @param lectureIds
+         * @param attributes
+         * @param orderBy
+         * @return {Array}
+         */
         const getLectureComparisonData = function(lectureIds, attributes, orderBy) {
             if(!angular.isArray(lectureIds)) {
                 return [];
@@ -402,6 +504,11 @@ angular.module('diploma').service('eventService', [
             return retArr;
         };
 
+        /**
+         * Get hall and day of lecture with lectureId as id.
+         * @param lectureId
+         * @return {{}}
+         */
         const getHallAndDay = function(lectureId) {
             var retVal = {};
             angular.forEach(event, function (day, order) {

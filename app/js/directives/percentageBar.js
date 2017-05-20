@@ -1,4 +1,5 @@
 /**
+ * Directive representing percentage bar visualization.
  * Created by tomas on 27.11.16.
  */
 angular.module('diploma')
@@ -7,7 +8,8 @@ angular.module('diploma')
             '$window',
             '$timeout',
             '$log',
-            function ($window, $timeout, $log) {
+            '$filter',
+            function ($window, $timeout, $log, $filter) {
             return {
                 restrict: 'E',
                 scope: {
@@ -71,7 +73,7 @@ angular.module('diploma')
                                     .attr('fill', textColor)
                                     .attr('y', h - 3)
                                     .attr('x', 5)
-                                    .text(amount);
+                                    .text($filter('number')($filter('number')(amount, 1)));
                             } else {
                                 svg.append('text')
                                     .attr('fill', '#000')

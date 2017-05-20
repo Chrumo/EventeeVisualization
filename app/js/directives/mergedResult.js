@@ -1,4 +1,5 @@
 /**
+ * Directive representing merged result visualization.
  * Created by tomas on 26.11.16.
  */
 angular.module('diploma')
@@ -18,6 +19,10 @@ angular.module('diploma')
                     var h = 400;
                     var padding = 42;
 
+                    /**
+                     * Return minimal time from all lectures starts.
+                     * @return {Moment}
+                     */
                     const getMinTime = function() {
                         var minTime = moment().add(100, 'y');
                         angular.forEach(scope.data, function (lecture) {
@@ -28,6 +33,10 @@ angular.module('diploma')
                         return minTime;
                     };
 
+                    /**
+                     * Return maximal time from all lectures ends.
+                     * @return {Moment}
+                     */
                     const getLastLectureEndTime = function () {
                         var maxTime = moment().subtract(100, 'y');
                         angular.forEach(scope.data, function (lecture) {
@@ -38,6 +47,10 @@ angular.module('diploma')
                         return maxTime;
                     };
 
+                    /**
+                     * Return median of all lectures ends and last ratings.
+                     * @return {Moment}
+                     */
                     const getMaxTime = function() {
                         var endArr = [];
                         var maxTime = getLastLectureEndTime();
@@ -169,6 +182,11 @@ angular.module('diploma')
                         .attr("pointer-events", "all")
                         .call(zoom);
 
+                    /**
+                     * Converts data to be more d3 friendly.
+                     * @param dataset
+                     * @return {*}
+                     */
                     const convertData = function (dataset) {
                         const maxDate = getMaxTime();
 
@@ -206,6 +224,10 @@ angular.module('diploma')
                         return dataset;
                     };
 
+                    /**
+                     * Draw paths for all lectures.
+                     * @param dataset
+                     */
                     const drawPaths = function (dataset) {
                         var line = d3.svg.line()
                             .x(function(d) { return xScale(d.datetime); })
@@ -261,6 +283,10 @@ angular.module('diploma')
                         paths.exit().remove();
                     };
 
+                    /**
+                     * Update visualization content.
+                     * @param dataset
+                     */
                     const update = function(dataset) {
                         drawPaths(convertData(dataset));
                     };

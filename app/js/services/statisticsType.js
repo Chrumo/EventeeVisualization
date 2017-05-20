@@ -1,4 +1,5 @@
 /**
+ * Service providing manipulation of statisticsType enum value.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').service('statisticsTypeService',
@@ -8,6 +9,11 @@ angular.module('diploma').service('statisticsTypeService',
         function ($log, statisticsType) {
             $log.debug("statisticsTypeService initialized");
 
+            /**
+             * Gets user readable name of statistics type.
+             * @param type
+             * @return {*}
+             */
             const getName = function(type) {
                 switch (type) {
                     case statisticsType.IOS:
@@ -27,6 +33,11 @@ angular.module('diploma').service('statisticsTypeService',
                 }
             };
 
+            /**
+             * Gets name of attribute type used when sorting.
+             * @param type
+             * @return {*}
+             */
             const getSortAttribute = function(type) {
                 switch (type) {
                     case statisticsType.IOS:
@@ -47,6 +58,11 @@ angular.module('diploma').service('statisticsTypeService',
                 return type;
             };
 
+            /**
+             * Return user readable event's status.
+             * @param status
+             * @return {*}
+             */
             const getStatusTranslation = function(status) {
                 switch (status) {
                     case "HIDDEN":

@@ -1,4 +1,5 @@
 /**
+ * ui.router configuration.. It defines every view this application has.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma')

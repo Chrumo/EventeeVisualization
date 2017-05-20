@@ -1,4 +1,5 @@
 /**
+ * Factory containing function which opens modal windows.
  * @author tomas Factory provides modal control.
  */
 angular.module('diploma').factory('modalFactory',
@@ -9,6 +10,11 @@ angular.module('diploma').factory('modalFactory',
             $log.debug("modalFactory initialized");
 
             return {
+                /**
+                 * Open merged result modal window.
+                 * @param lectureIds - ids of lectures showed in this modal.
+                 * @param dataType
+                 */
                 'openMergedResult': function (lectureIds, dataType) {
                     return $uibModal.open({
                         animation: true,
@@ -25,6 +31,10 @@ angular.module('diploma').factory('modalFactory',
                         }
                     });
                 },
+                /**
+                 * Open help window containing only image.
+                 * @param image - url to the image.
+                 */
                 'openHelp': function (image) {
                     return $uibModal.open({
                         animation: true,

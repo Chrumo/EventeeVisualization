@@ -1,4 +1,5 @@
 /**
+ * Service providing manipulation of attributeType enum value.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').service('attributeTypeService',
@@ -8,6 +9,11 @@ angular.module('diploma').service('attributeTypeService',
         function ($log, attributeType) {
             $log.debug("attributeTypeService initialized");
 
+            /**
+             * Gets user readable name of attribute type.
+             * @param type
+             * @return {*}
+             */
             const getName = function(type) {
                 switch (type) {
                     case attributeType.RATINGS:
@@ -23,6 +29,11 @@ angular.module('diploma').service('attributeTypeService',
                 }
             };
 
+            /**
+             * Gets hexadecimal value of attribute type color.
+             * @param type
+             * @return {*}
+             */
             const getColor = function(type) {
                 switch (type) {
                     case attributeType.RATINGS:

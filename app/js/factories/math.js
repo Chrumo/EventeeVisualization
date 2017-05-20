@@ -1,4 +1,5 @@
 /**
+ * Factory containing function helping with math problems.
  * Created by tomas on 25.2.17.
  */
 angular.module('diploma').factory('mathFactory',
@@ -7,6 +8,13 @@ angular.module('diploma').factory('mathFactory',
         function ($log) {
             $log.debug("mathFactory initialized");
 
+            /**
+             * Returns value of obj[key] when key is defined. Else it returns obj.
+             * @param obj
+             * @param key
+             * @return {*}
+             * @private
+             */
             const _getVal = function (obj, key) {
                 if(angular.isUndefined(key)) {
                     return obj;
@@ -15,6 +23,12 @@ angular.module('diploma').factory('mathFactory',
                 }
             };
 
+            /**
+             * Return sum of input arr.
+             * @param arr
+             * @param key
+             * @return {number}
+             */
             const sum = function (arr, key) {
                 var sum = 0;
                 angular.forEach(arr, function(obj) {
@@ -23,6 +37,12 @@ angular.module('diploma').factory('mathFactory',
                 return sum;
             };
 
+            /**
+             * Return average value of input arr.
+             * @param arr
+             * @param key
+             * @return {number}
+             */
             const average = function (arr, key) {
                 if(arr.length === 0) {
                     return 0;
@@ -30,6 +50,11 @@ angular.module('diploma').factory('mathFactory',
                 return 1.0 * sum(arr, key) / arr.length;
             };
 
+            /**
+             * Return median of array of Moments.
+             * @param array
+             * @return {*}
+             */
             const timeMedian = function (array) {
                 array.sort(function(a, b) {
                     return a.diff(b);
